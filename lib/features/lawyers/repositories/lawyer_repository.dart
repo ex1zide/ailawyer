@@ -26,7 +26,7 @@ class LawyerRepository {
       // Fallback to mock data for demo purposes
       return MockData.lawyers.where((l) {
         if (category == null || category == 'Все') return true;
-        return l.category == category;
+        return l.categories.contains(category);
       }).toList();
     }
   }

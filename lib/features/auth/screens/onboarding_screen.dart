@@ -82,9 +82,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             right: 0,
             child: SafeArea(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                height: 150, // Fixed height to prevent overflow
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.primaryBackground.withOpacity(0),
+                      AppColors.primaryBackground,
+                    ],
+                  ),
+                ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     // Page indicators
                     Row(
@@ -104,7 +115,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         );
                       }),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         if (_currentPage > 0)
@@ -133,23 +144,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ],
                     ),
-                    if (_currentPage < _pages.length - 1) ...[
-                      const SizedBox(height: 6),
+                    const SizedBox(height: 8),
+                    if (_currentPage < _pages.length - 1)
                       GestureDetector(
                         onTap: () => context.go(AppRoutes.phoneAuth),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4),
-                          child: Text(
-                            'Пропустить',
-                            style: TextStyle(
-                              color: AppColors.textTertiary,
-                              fontSize: 13,
-                              fontFamily: 'Inter',
-                            ),
+                        child: const Text(
+                          'Пропустить',
+                          style: TextStyle(
+                            color: AppColors.textTertiary,
+                            fontSize: 13,
+                            fontFamily: 'Inter',
                           ),
                         ),
-                      ),
-                    ],
+                      )
+                    else
+                      const SizedBox(height: 16), // Bottom padding
                   ],
                 ),
               ),

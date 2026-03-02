@@ -206,10 +206,8 @@ final lawyersProvider = FutureProvider<List<Lawyer>>((ref) async {
       sortBy: filter.sortBy,
     );
   } catch (e) {
-    return MockData.lawyers.where((l) {
-      if (filter.category == 'Все') return true;
-      return l.category == filter.category;
-    }).toList();
+    // Return all mock lawyers as a final fallback to avoid error screen
+    return MockData.lawyers;
   }
 });
 

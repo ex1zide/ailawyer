@@ -29,7 +29,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       final auth = ref.read(authProvider.notifier);
       final phone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
       await auth.sendOtp(phone);
-      if (mounted) context.push('/otp', extra: phone);
+      if (mounted) context.push('${AppRoutes.smsVerification}?phone=$phone');
     }
   }
 
@@ -223,23 +223,29 @@ class PhoneInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    var text = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (text.length > 10) text = text.substring(0, 10);
-    if (text.isEmpty) return newValue.copyWith(text: '');
+    if (newValue.text.length < oldValue.text.length) {
+      return newValue;
+    }
+    final text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.length > 10) return oldValue;
 
-    final buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      if (i == 0) buffer.write('(');
-      if (i == 3) buffer.write(') ');
-      if (i == 6) buffer.write(' ');
-      if (i == 8) buffer.write(' ');
-      buffer.write(text[i]);
+    String formatted = '';
+    if (text.isNotEmpty) {
+      formatted += '(' + text.substring(0, text.length > 3 ? 3 : text.length);
+      if (text.length > 3) {
+        formatted += ') ' + text.substring(3, text.length > 6 ? 6 : text.length);
+      }
+      if (text.length > 6) {
+        formatted += ' ' + text.substring(6, text.length > 8 ? 8 : text.length);
+      }
+      if (text.length > 8) {
+        formatted += ' ' + text.substring(8, text.length);
+      }
     }
 
-    final formattedText = buffer.toString();
-    return newValue.copyWith(
-      text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }
