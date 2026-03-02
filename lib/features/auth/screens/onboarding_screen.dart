@@ -80,76 +80,78 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(
-                24, 24, 24,
-                MediaQuery.of(context).padding.bottom + 24,
-              ),
-              child: Column(
-                children: [
-                  // Page indicators
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_pages.length, (i) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentPage == i ? 24 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == i
-                              ? AppColors.gold
-                              : AppColors.textMuted,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      if (_currentPage > 0)
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Page indicators
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_pages.length, (i) {
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentPage == i ? 24 : 8,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: _currentPage == i
+                                ? AppColors.gold
+                                : AppColors.textMuted,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        if (_currentPage > 0)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: GoldButton(
+                                text: 'Назад',
+                                isOutlined: true,
+                                onTap: () {
+                                  _controller.previousPage(
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeInOut,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                         Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: GoldButton(
-                              text: 'Назад',
-                              isOutlined: true,
-                              onTap: () {
-                                _controller.previousPage(
-                                  duration: const Duration(milliseconds: 400),
-                                  curve: Curves.easeInOut,
-                                );
-                              },
+                          child: GoldButton(
+                            text: _currentPage == _pages.length - 1
+                                ? 'Начать'
+                                : 'Далее',
+                            onTap: _next,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_currentPage < _pages.length - 1) ...[
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: () => context.go(AppRoutes.phoneAuth),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            'Пропустить',
+                            style: TextStyle(
+                              color: AppColors.textTertiary,
+                              fontSize: 13,
+                              fontFamily: 'Inter',
                             ),
                           ),
                         ),
-                      Expanded(
-                        flex: _currentPage > 0 ? 1 : 1,
-                        child: GoldButton(
-                          text: _currentPage == _pages.length - 1
-                              ? 'Начать'
-                              : 'Далее',
-                          onTap: _next,
-                        ),
                       ),
                     ],
-                  ),
-                  if (_currentPage < _pages.length - 1) ...[
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: () => context.go(AppRoutes.phoneAuth),
-                      child: const Text(
-                        'Пропустить',
-                        style: TextStyle(
-                          color: AppColors.textTertiary,
-                          fontSize: 14,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
-                    ),
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -202,8 +204,8 @@ class _PageViewState extends State<_PageView> {
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(28, 40, 28, 180),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(28, 60, 28, 180),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

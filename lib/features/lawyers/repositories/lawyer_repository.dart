@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legalhelp_kz/core/api/api_client.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 
+import 'package:legalhelp_kz/core/utils/mock_data.dart';
+
 final lawyerRepositoryProvider = Provider<LawyerRepository>((ref) {
   return LawyerRepository(ref.watch(apiClientProvider));
 });
@@ -12,13 +14,21 @@ class LawyerRepository {
   LawyerRepository(this._apiClient);
 
   Future<List<Lawyer>> getLawyers({String? category, String? sortBy}) async {
-    final response = await _apiClient.get('/lawyers', queryParameters: {
-      if (category != null && category != 'Все') 'category': category,
-      if (sortBy != null) 'sort_by': sortBy,
-    });
-    return (response.data['lawyers'] as List<dynamic>)
-        .map((l) => Lawyer.fromJson(l))
-        .toList();
+    try {
+      final response = await _apiClient.get('/lawyers', queryParameters: {
+        if (category != null && category != 'Все') 'category': category,
+        if (sortBy != null) 'sort_by': sortBy,
+      });
+      return (response.data['lawyers'] as List<dynamic>)
+          .map((l) => Lawyer.fromJson(l))
+          .toList();
+    } catch (e) {
+      // Fallback to mock data for demo purposes
+      return MockData.lawyers.where((l) {
+        if (category == null || category == 'Все') return true;
+        return l.category == category;
+      }).toList();
+    }
   }
 
   Future<Lawyer> getLawyerById(String id) async {

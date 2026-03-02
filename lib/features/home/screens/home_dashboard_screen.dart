@@ -30,7 +30,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Container(
               padding: EdgeInsets.fromLTRB(
-                  20, MediaQuery.of(context).padding.top + 16, 20, 20),
+                  20, MediaQuery.of(context).padding.top + 32, 20, 20),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF1A1500), Color(0xFF0A0A0A)],

@@ -25,13 +25,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    final auth = ref.read(authProvider.notifier);
-    await auth.sendOtp(_phoneController.text);
-    if (mounted) {
-      context.go(
-        '${AppRoutes.smsVerification}?phone=${Uri.encodeComponent(_phoneController.text)}',
-      );
+    if (_formKey.currentState!.validate()) {
+      final auth = ref.read(authProvider.notifier);
+      final phone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+      await auth.sendOtp(phone);
+      if (mounted) context.push('/otp', extra: phone);
     }
   }
 
@@ -138,12 +136,13 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
+                            PhoneInputFormatter(),
                           ],
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Введите номер телефона';
-                            if (v.length < 10) return 'Неверный формат';
+                            if (v.replaceAll(RegExp(r'\D'), '').length < 10) {
+                              return 'Неверный формат';
+                            }
                             return null;
                           },
                           style: const TextStyle(
@@ -153,7 +152,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                             letterSpacing: 1,
                           ),
                           decoration: const InputDecoration(
-                            hintText: '777 123 45 67',
+                            hintText: '(707) 447 96 40',
                             hintStyle: TextStyle(
                               color: AppColors.textMuted,
                               fontFamily: 'Inter',
@@ -214,6 +213,33 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.length > 10) text = text.substring(0, 10);
+    if (text.isEmpty) return newValue.copyWith(text: '');
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      if (i == 0) buffer.write('(');
+      if (i == 3) buffer.write(') ');
+      if (i == 6) buffer.write(' ');
+      if (i == 8) buffer.write(' ');
+      buffer.write(text[i]);
+    }
+
+    final formattedText = buffer.toString();
+    return newValue.copyWith(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }

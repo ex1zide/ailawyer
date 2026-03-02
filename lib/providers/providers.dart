@@ -198,12 +198,19 @@ final lawyersFilterProvider = StateNotifierProvider<LawyersNotifier, LawyersFilt
   return LawyersNotifier();
 });
 
-final lawyersProvider = FutureProvider<List<Lawyer>>((ref) {
+final lawyersProvider = FutureProvider<List<Lawyer>>((ref) async {
   final filter = ref.watch(lawyersFilterProvider);
-  return ref.watch(lawyerRepositoryProvider).getLawyers(
-    category: filter.category,
-    sortBy: filter.sortBy,
-  );
+  try {
+    return await ref.watch(lawyerRepositoryProvider).getLawyers(
+      category: filter.category,
+      sortBy: filter.sortBy,
+    );
+  } catch (e) {
+    return MockData.lawyers.where((l) {
+      if (filter.category == 'Все') return true;
+      return l.category == filter.category;
+    }).toList();
+  }
 });
 
 final lawyerProfileProvider = FutureProvider.family<Lawyer, String>((ref, id) {
