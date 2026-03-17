@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/config/constants.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -53,7 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.go(AppRoutes.phoneAuth);
+      context.push(AppRoutes.login);
     }
   }
 
@@ -145,20 +147,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    if (_currentPage < _pages.length - 1)
-                      GestureDetector(
-                        onTap: () => context.go(AppRoutes.phoneAuth),
-                        child: const Text(
-                          'Пропустить',
-                          style: TextStyle(
-                            color: AppColors.textTertiary,
-                            fontSize: 13,
-                            fontFamily: 'Inter',
-                          ),
+                    // Skip button always visible
+                    GestureDetector(
+                      onTap: () => context.push(AppRoutes.login),
+                      child: const Text(
+                        'Пропустить',
+                        style: TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 13,
+                          fontFamily: 'Inter',
                         ),
-                      )
-                    else
-                      const SizedBox(height: 16), // Bottom padding
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -188,16 +188,15 @@ class _OnboardingPage {
   });
 }
 
-class _PageView extends StatefulWidget {
+class _PageView extends ConsumerStatefulWidget {
   final _OnboardingPage page;
   const _PageView({required this.page});
 
   @override
-  State<_PageView> createState() => _PageViewState();
+  ConsumerState<_PageView> createState() => _PageViewState();
 }
 
-class _PageViewState extends State<_PageView> {
-  String _selectedLanguage = 'Русский';
+class _PageViewState extends ConsumerState<_PageView> {
   String _selectedCity = 'Алматы';
   final List<String> _selectedInterests = ['ДТП', 'Семейное право'];
 
@@ -288,10 +287,11 @@ class _PageViewState extends State<_PageView> {
                 const SizedBox(height: 8),
                 Row(
                   children: ['Русский', 'Қазақша'].map((lang) {
-                    final selected = _selectedLanguage == lang;
+                    final selectedLanguage = ref.watch(languageProvider);
+                    final selected = selectedLanguage == lang;
                     return Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => _selectedLanguage = lang),
+                        onTap: () => ref.read(languageProvider.notifier).setLanguage(lang),
                         child: Container(
                           margin: const EdgeInsets.only(right: 8),
                           padding: const EdgeInsets.symmetric(vertical: 12),

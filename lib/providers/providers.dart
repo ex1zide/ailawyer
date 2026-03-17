@@ -1,9 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/features/auth/repositories/auth_repository.dart';
 import 'package:legalhelp_kz/features/chat/repositories/chat_repository.dart';
 import 'package:legalhelp_kz/features/lawyers/repositories/lawyer_repository.dart';
+import 'package:legalhelp_kz/core/services/firestore_service.dart';
+import 'package:legalhelp_kz/core/services/storage_service.dart';
+import 'package:legalhelp_kz/core/services/openai_service.dart';
+import 'package:legalhelp_kz/core/services/user_service.dart';
+import 'package:legalhelp_kz/core/services/chat_service.dart';
+import 'package:legalhelp_kz/core/services/lawyer_service.dart';
+import 'package:legalhelp_kz/core/services/booking_service.dart';
+import 'package:legalhelp_kz/core/services/document_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Auth Provider ────────────────────────────────────────────────────────────
 
@@ -38,7 +48,27 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
 
-  AuthNotifier(this._repository) : super(const AuthState());
+  AuthNotifier(this._repository) : super(const AuthState()) {
+    _init();
+  }
+
+  void _init() {
+    _repository.authStateChanges.listen((firebaseUser) {
+      if (firebaseUser != null) {
+        state = state.copyWith(
+          isAuthenticated: true,
+          user: User(
+            id: firebaseUser.uid,
+            phone: firebaseUser.phoneNumber ?? '',
+            firstName: firebaseUser.displayName?.split(' ').first,
+            lastName: firebaseUser.displayName?.split(' ').last,
+          ),
+        );
+      } else {
+        state = const AuthState();
+      }
+    });
+  }
 
   Future<void> sendOtp(String phone) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -72,11 +102,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> signIn(String email, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _repository.signIn(email, password);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> signUp(String email, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _repository.signUp(email, password);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      rethrow;
+    }
+  }
+
   void setUser(User user) {
     state = state.copyWith(user: user, isAuthenticated: true);
   }
 
-  void signOut() {
+  Future<void> signOut() async {
+    await _repository.signOut();
     state = const AuthState();
   }
 }
@@ -85,12 +136,60 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(ref.watch(authRepositoryProvider));
 });
 
-// ─── User Provider ────────────────────────────────────────────────────────────
+// ─── Core Service Providers ───────────────────────────────────────────────────
+
+final firestoreServiceProvider =
+    Provider<FirestoreService>((ref) => FirestoreService());
+
+final storageServiceProvider =
+    Provider<StorageService>((ref) => StorageService());
+
+final openAIServiceProvider = Provider<OpenAIService>((ref) => OpenAIService());
+
+final userServiceProvider = Provider<UserService>((ref) {
+  return UserService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(storageServiceProvider),
+  );
+});
+
+final chatServiceProvider = Provider<ChatService>((ref) {
+  return ChatService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(openAIServiceProvider),
+  );
+});
+
+final lawyerServiceProvider = Provider<LawyerService>((ref) {
+  return LawyerService(ref.watch(firestoreServiceProvider));
+});
+
+final bookingServiceProvider = Provider<BookingService>((ref) {
+  return BookingService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(lawyerServiceProvider),
+  );
+});
+
+final documentServiceProvider = Provider<DocumentService>((ref) {
+  return DocumentService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(storageServiceProvider),
+  );
+});
+
+// ─── User Profile Provider ────────────────────────────────────────────────────
 
 final userProvider = Provider<User>((ref) {
   return ref.watch(authProvider).user ?? MockData.currentUser;
 });
 
+/// Real-time Firestore stream of the current user's profile.
+final userProfileProvider = StreamProvider<User?>((ref) {
+  final uid = ref.watch(authProvider).user?.id;
+  if (uid == null) return const Stream.empty();
+  return ref.watch(userServiceProvider).getUserStream(uid);
+});
 
 
 // ─── Chat Provider ────────────────────────────────────────────────────────────
@@ -132,20 +231,22 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
     addMessage(loadingMsg);
 
     try {
-      final aiMsg = await _repository.sendMessage(text);
+      // Pass full conversation history so Gemini has context
+      final history = state.where((m) => m.id != 'loading').toList();
+      final aiMsg = await _repository.sendMessage(text, history: history);
       state = state.where((m) => m.id != 'loading').toList();
       addMessage(aiMsg);
     } catch (e) {
       state = state.where((m) => m.id != 'loading').toList();
       addMessage(ChatMessage(
-        id: 'error',
-        text: 'К сожалению, произошла ошибка подключения к AI. Попробуйте позже.',
+        id: 'error_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'Ошибка: ${e.toString().replaceAll("Exception: ", "")}',
         isUser: false,
         timestamp: DateTime.now(),
       ));
     }
   }
-
+  // (Removed duplicate sendMessage block)
   Future<void> clearMessages() async {
     try {
       await _repository.clearHistory();
@@ -198,17 +299,13 @@ final lawyersFilterProvider = StateNotifierProvider<LawyersNotifier, LawyersFilt
   return LawyersNotifier();
 });
 
-final lawyersProvider = FutureProvider<List<Lawyer>>((ref) async {
+final lawyersProvider = StreamProvider<List<Lawyer>>((ref) {
   final filter = ref.watch(lawyersFilterProvider);
-  try {
-    return await ref.watch(lawyerRepositoryProvider).getLawyers(
-      category: filter.category,
-      sortBy: filter.sortBy,
-    );
-  } catch (e) {
-    // Return all mock lawyers as a final fallback to avoid error screen
-    return MockData.lawyers;
-  }
+  final category = filter.category == 'Все' ? null : filter.category;
+  return ref.watch(lawyerServiceProvider).getLawyers(
+    category: category,
+    sort: filter.sortBy == 'rating' ? 'rating' : filter.sortBy,
+  );
 });
 
 final lawyerProfileProvider = FutureProvider.family<Lawyer, String>((ref, id) {
@@ -261,22 +358,18 @@ final unreadNotificationsCountProvider = Provider<int>((ref) {
   return ref.watch(notificationsProvider).where((n) => !n.isRead).length;
 });
 
-// ─── Documents Provider ───────────────────────────────────────────────────────
+/// Real-time Firestore stream of the current user's documents.
+final documentsProvider = StreamProvider<List<Document>>((ref) {
+  final uid = ref.watch(authProvider).user?.id;
+  if (uid == null) return Stream.value([]);
+  return ref.watch(documentServiceProvider).getUserDocuments(uid);
+});
 
-class DocumentsNotifier extends StateNotifier<List<Document>> {
-  DocumentsNotifier() : super(MockData.documents);
-
-  void addDocument(Document doc) {
-    state = [doc, ...state];
-  }
-
-  void removeDocument(String id) {
-    state = state.where((d) => d.id != id).toList();
-  }
-}
-
-final documentsProvider = StateNotifierProvider<DocumentsNotifier, List<Document>>((ref) {
-  return DocumentsNotifier();
+/// Real-time Firestore stream of the current user's bookings.
+final bookingsProvider = StreamProvider<List<Booking>>((ref) {
+  final uid = ref.watch(authProvider).user?.id;
+  if (uid == null) return Stream.value([]);
+  return ref.watch(bookingServiceProvider).getUserBookings(uid);
 });
 
 // ─── Saved Lawyers Provider ───────────────────────────────────────────────────
@@ -364,4 +457,31 @@ class SearchNotifier extends StateNotifier<String> {
 
 final searchQueryProvider = StateNotifierProvider<SearchNotifier, String>((ref) {
   return SearchNotifier();
+});
+
+// ─── Language Provider ────────────────────────────────────────────────────────
+
+class LanguageNotifier extends StateNotifier<String> {
+  final SharedPreferences _prefs;
+  static const _key = 'app_language';
+
+  LanguageNotifier(this._prefs) : super(_prefs.getString(_key) ?? 'Русский');
+
+  Future<void> setLanguage(String lang) async {
+    state = lang;
+    await _prefs.setString(_key, lang);
+  }
+  
+  void toggle() {
+    setLanguage(state == 'Русский' ? 'Қазақша' : 'Русский');
+  }
+}
+
+// Ensure SharedPreferences is initialized before running the app
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError('sharedPreferencesProvider must be overridden');
+});
+
+final languageProvider = StateNotifierProvider<LanguageNotifier, String>((ref) {
+  return LanguageNotifier(ref.watch(sharedPreferencesProvider));
 });

@@ -33,14 +33,23 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <!-- Firebase Web SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+    const firebaseConfig = {
+      apiKey: "AIzaSyB22Q7WHX_eMvVHaPFZVsmN7UhePfhSqCY",
+      authDomain: "legalhelp-kz.firebaseapp.com",
+      projectId: "legalhelp-kz",
+      storageBucket: "legalhelp-kz.firebasestorage.app",
+      messagingSenderId: "109408977432",
+      appId: "1:109408977432:android:36469c8268028a9ac6b96d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    getAuth(app);
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

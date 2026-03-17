@@ -19,8 +19,7 @@ class _DocumentLibraryScreenState extends ConsumerState<DocumentLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final docs = ref.watch(documentsProvider);
-    final filtered = _filter == 'All' ? docs : docs.where((d) => d.type == _filter).toList();
+    final docsAsync = ref.watch(documentsProvider);
 
     String _typeLabel(String t) {
       switch (t) {
@@ -64,95 +63,104 @@ class _DocumentLibraryScreenState extends ConsumerState<DocumentLibraryScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Filter chips
-          SizedBox(
-            height: 44,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              itemCount: _filters.length,
-              itemBuilder: (_, i) {
-                final sel = _filters[i].$1 == _filter;
-                return GestureDetector(
-                  onTap: () => setState(() => _filter = _filters[i].$1),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: sel ? AppColors.borderGold : AppColors.secondaryBackground,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: sel ? AppColors.gold : AppColors.border),
-                    ),
-                    child: Center(child: Text(_filters[i].$2, style: TextStyle(
-                      color: sel ? AppColors.gold : AppColors.textSecondary,
-                      fontSize: 13, fontWeight: sel ? FontWeight.w600 : FontWeight.w400, fontFamily: 'Inter',
-                    ))),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: filtered.isEmpty
-                ? const EmptyState(icon: '📄', title: 'Нет документов', subtitle: 'Отсканируйте первый документ', actionText: 'Сканировать')
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.85,
-                    ),
-                    itemCount: filtered.length,
-                    itemBuilder: (_, i) {
-                      final doc = filtered[i];
-                      return Container(
-                        decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.surfaceColor,
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                                ),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text('📄', style: TextStyle(fontSize: 40)),
-                                      const SizedBox(height: 4),
-                                      GoldBadge(text: _typeLabel(doc.type), small: true),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(doc.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w500, fontFamily: 'Inter'), maxLines: 2, overflow: TextOverflow.ellipsis),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(_sizeStr(doc.size), style: const TextStyle(color: AppColors.textTertiary, fontSize: 10, fontFamily: 'Inter')),
-                                      const Spacer(),
-                                      Text('${doc.createdAt.day} ${monthNames[doc.createdAt.month]}', style: const TextStyle(color: AppColors.textTertiary, fontSize: 10, fontFamily: 'Inter')),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+      body: docsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Ошибка загрузки: $e')),
+        data: (allDocs) {
+          final filtered = _filter == 'All'
+              ? allDocs
+              : allDocs.where((d) => d.type == _filter).toList();
+          return Column(
+            children: [
+              // Filter chips
+              SizedBox(
+                height: 44,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  itemCount: _filters.length,
+                  itemBuilder: (_, i) {
+                    final sel = _filters[i].$1 == _filter;
+                    return GestureDetector(
+                      onTap: () => setState(() => _filter = _filters[i].$1),
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: sel ? AppColors.borderGold : AppColors.secondaryBackground,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: sel ? AppColors.gold : AppColors.border),
                         ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        child: Center(child: Text(_filters[i].$2, style: TextStyle(
+                          color: sel ? AppColors.gold : AppColors.textSecondary,
+                          fontSize: 13, fontWeight: sel ? FontWeight.w600 : FontWeight.w400, fontFamily: 'Inter',
+                        ))),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: filtered.isEmpty
+                    ? const EmptyState(icon: '📄', title: 'Нет документов', subtitle: 'Отсканируйте первый документ', actionText: 'Сканировать')
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.85,
+                        ),
+                        itemCount: filtered.length,
+                        itemBuilder: (_, i) {
+                          final doc = filtered[i];
+                          return Container(
+                            decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceColor,
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                                    ),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('📄', style: TextStyle(fontSize: 40)),
+                                          const SizedBox(height: 4),
+                                          GoldBadge(text: _typeLabel(doc.type), small: true),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(doc.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w500, fontFamily: 'Inter'), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Text(_sizeStr(doc.size), style: const TextStyle(color: AppColors.textTertiary, fontSize: 10, fontFamily: 'Inter')),
+                                          const Spacer(),
+                                          Text('${doc.createdAt.day} ${monthNames[doc.createdAt.month]}', style: const TextStyle(color: AppColors.textTertiary, fontSize: 10, fontFamily: 'Inter')),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

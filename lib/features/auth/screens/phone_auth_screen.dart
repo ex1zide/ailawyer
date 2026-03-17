@@ -174,6 +174,72 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   isLoading: isLoading,
                   onTap: _submit,
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: AppColors.border)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'или',
+                        style: TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 13,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider(color: AppColors.border)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.push(AppRoutes.login),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.border),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      'Войти по Email',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: GestureDetector(
+                    onTap: () => context.push(AppRoutes.register),
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                        ),
+                        children: [
+                          TextSpan(text: 'Нет аккаунта? '),
+                          TextSpan(
+                            text: 'Создать по Email',
+                            style: TextStyle(
+                              color: AppColors.gold,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 Center(
                   child: Padding(

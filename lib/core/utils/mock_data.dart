@@ -292,6 +292,7 @@ class MockData {
       category: 'Бизнес',
       publishedAt: DateTime.now().subtract(const Duration(hours: 6)),
       source: 'Zakon.kz',
+      url: 'https://www.zakon.kz/5423123-v-rk-upostili-registraci-ip.html',
     ),
     LegalNews(
       id: 'news002',
@@ -300,6 +301,7 @@ class MockData {
       category: 'ДТП',
       publishedAt: DateTime.now().subtract(const Duration(days: 1)),
       source: 'Tengrinews',
+      url: 'https://tengrinews.kz/kazakhstan_news/novyie-shtrafyi-za-narushenie-pdd-491234/',
     ),
     LegalNews(
       id: 'news003',
@@ -308,6 +310,7 @@ class MockData {
       category: 'Трудовое',
       publishedAt: DateTime.now().subtract(const Duration(days: 2)),
       source: 'Kapital.kz',
+      url: 'https://kapital.kz/economic/123456/izmeneniya-v-tk-rk-bol-nichnyye.html',
     ),
     LegalNews(
       id: 'news004',
@@ -316,6 +319,7 @@ class MockData {
       category: 'Семейное',
       publishedAt: DateTime.now().subtract(const Duration(days: 3)),
       source: 'Zakon.kz',
+      url: 'https://www.zakon.kz/5423456-verhovnyy-sud-rk.html',
     ),
     LegalNews(
       id: 'news005',
@@ -324,6 +328,7 @@ class MockData {
       category: 'Недвижимость',
       publishedAt: DateTime.now().subtract(const Duration(days: 4)),
       source: 'Forbes Kazakhstan',
+      url: 'https://forbes.kz/process/property/novyiy_zakon_o_dolevom_stroitelstve/',
     ),
   ];
 

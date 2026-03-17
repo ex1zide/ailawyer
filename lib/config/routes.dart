@@ -6,6 +6,8 @@ import 'package:legalhelp_kz/features/auth/screens/onboarding_screen.dart';
 import 'package:legalhelp_kz/features/auth/screens/phone_auth_screen.dart';
 import 'package:legalhelp_kz/features/auth/screens/sms_verification_screen.dart';
 import 'package:legalhelp_kz/features/auth/screens/profile_setup_screen.dart';
+import 'package:legalhelp_kz/features/auth/screens/register_screen.dart';
+import 'package:legalhelp_kz/features/auth/screens/login_screen.dart';
 import 'package:legalhelp_kz/features/home/screens/home_dashboard_screen.dart';
 import 'package:legalhelp_kz/features/home/screens/search_screen.dart';
 import 'package:legalhelp_kz/features/home/screens/notifications_screen.dart';
@@ -36,6 +38,8 @@ class AppRoutes {
   static const String phoneAuth = '/phone-auth';
   static const String smsVerification = '/sms-verification';
   static const String profileSetup = '/profile-setup';
+  static const String register = '/register';
+  static const String login = '/login';
   static const String home = '/home';
   static const String search = '/search';
   static const String notifications = '/notifications';
@@ -90,6 +94,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.profileSetup,
         builder: (context, state) => const ProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginScreen(),
       ),
       // Notifications (full screen over shell)
       GoRoute(

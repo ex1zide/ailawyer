@@ -362,6 +362,7 @@ class LegalNews {
   final DateTime publishedAt;
   final String? imageUrl;
   final String source;
+  final String? url;
 
   const LegalNews({
     required this.id,
@@ -371,6 +372,7 @@ class LegalNews {
     required this.publishedAt,
     this.imageUrl,
     required this.source,
+    this.url,
   });
 }
 

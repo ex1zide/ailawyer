@@ -3,6 +3,7 @@ import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LegalNewsScreen extends StatefulWidget {
   const LegalNewsScreen({super.key});
@@ -65,35 +66,45 @@ class _LegalNewsScreenState extends State<LegalNewsScreen> {
                     itemCount: news.length,
                     itemBuilder: (_, i) {
                       final n = news[i];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                GoldBadge(text: n.category, small: true),
-                                const SizedBox(width: 8),
-                                Text(_ago(n.publishedAt), style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, fontFamily: 'Inter')),
-                                const Spacer(),
-                                Text(n.source, style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, fontFamily: 'Inter')),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Text(n.title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600, fontFamily: 'Inter', height: 1.3)),
-                            const SizedBox(height: 6),
-                            Text(n.summary, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'Inter', height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 10),
-                            const Row(
-                              children: [
-                                Text('Читать полностью', style: TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
-                                SizedBox(width: 4),
-                                Icon(Icons.arrow_forward, color: AppColors.gold, size: 13),
-                              ],
-                            ),
-                          ],
+                      return GestureDetector(
+                        onTap: () async {
+                          if (n.url != null) {
+                            final uri = Uri.parse(n.url!);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            }
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  GoldBadge(text: n.category, small: true),
+                                  const SizedBox(width: 8),
+                                  Text(_ago(n.publishedAt), style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, fontFamily: 'Inter')),
+                                  const Spacer(),
+                                  Text(n.source, style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, fontFamily: 'Inter')),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(n.title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600, fontFamily: 'Inter', height: 1.3)),
+                              const SizedBox(height: 6),
+                              Text(n.summary, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'Inter', height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
+                              const SizedBox(height: 10),
+                              const Row(
+                                children: [
+                                  Text('Читать полностью', style: TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.arrow_forward, color: AppColors.gold, size: 13),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
