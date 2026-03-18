@@ -6,16 +6,17 @@ import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
 
-class BookingFlowScreen extends StatefulWidget {
+class BookingFlowScreen extends ConsumerStatefulWidget {
   final String lawyerId;
   const BookingFlowScreen({super.key, required this.lawyerId});
 
   @override
-  State<BookingFlowScreen> createState() => _BookingFlowScreenState();
+  ConsumerState<BookingFlowScreen> createState() => _BookingFlowScreenState();
 }
 
-class _BookingFlowScreenState extends State<BookingFlowScreen> {
+class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   int _step = 0;
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String? _selectedTime;
@@ -25,16 +26,32 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lawyer = MockData.lawyers.firstWhere((l) => l.id == widget.lawyerId,
-        orElse: () => MockData.lawyers.first);
+    final lawyerAsync = ref.watch(lawyerProfileProvider(widget.lawyerId));
 
-    return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
-      appBar: CustomAppBar(title: 'Запись к юристу'),
-      body: Column(
-        children: [
-          // Progress steps
-          Padding(
+    return lawyerAsync.when(
+      loading: () => const Scaffold(
+        backgroundColor: AppColors.primaryBackground,
+        body: Center(child: CircularProgressIndicator(color: AppColors.gold)),
+      ),
+      error: (err, _) => Scaffold(
+        backgroundColor: AppColors.primaryBackground,
+        body: EmptyState(icon: '⚠️', title: 'Ошибка загрузки', subtitle: err.toString()),
+      ),
+      data: (lawyer) {
+        if (lawyer == null) {
+          return const Scaffold(
+            backgroundColor: AppColors.primaryBackground,
+            body: EmptyState(icon: '😕', title: 'Юрист не найден', subtitle: 'Возможно профиль был удален.'),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.primaryBackground,
+          appBar: CustomAppBar(title: 'Запись к юристу'),
+          body: Column(
+            children: [
+              // Progress steps
+              Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: List.generate(3, (i) {
@@ -104,7 +121,15 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                       if (_step < 2) {
                         setState(() => _step++);
                       } else {
-                        context.push('${AppRoutes.payment}?lawyerId=${widget.lawyerId}&price=${lawyer.price}');
+                        final parts = _selectedTime!.split(':');
+                        final dt = DateTime(
+                          _selectedDate.year, _selectedDate.month, _selectedDate.day,
+                          int.parse(parts[0]), int.parse(parts[1]),
+                        );
+                        final typeStr = _consultationType == ConsultationType.online ? 'online' : 
+                                        _consultationType == ConsultationType.phone ? 'phone' : 'inPerson';
+                        
+                        context.push('${AppRoutes.payment}?lawyerId=${widget.lawyerId}&price=${lawyer.price}&date=${dt.toIso8601String()}&type=$typeStr');
                       }
                     },
                   ),
@@ -114,6 +139,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

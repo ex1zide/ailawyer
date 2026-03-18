@@ -7,6 +7,7 @@ import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/core/utils/translations.dart';
 
 class HomeDashboardScreen extends ConsumerWidget {
   const HomeDashboardScreen({super.key});
@@ -21,6 +22,7 @@ class HomeDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
+    final lang = ref.watch(languageProvider);
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
@@ -48,7 +50,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${_greeting()}, 👋',
+                              '${AppTranslations.tr('greeting', lang)}, 👋',
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 14,
@@ -137,12 +139,12 @@ class HomeDashboardScreen extends ConsumerWidget {
                         border: Border.all(color: AppColors.border),
                       ),
                       child: Row(
-                        children: const [
-                          Icon(Icons.search, color: AppColors.textTertiary, size: 20),
-                          SizedBox(width: 10),
+                        children: [
+                          const Icon(Icons.search, color: AppColors.textTertiary, size: 20),
+                          const SizedBox(width: 10),
                           Text(
-                            'Задайте вопрос по законам Казахстана...',
-                            style: TextStyle(
+                            AppTranslations.tr('ask_question_hint', lang),
+                            style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 14,
                               fontFamily: 'Inter',
@@ -164,13 +166,13 @@ class HomeDashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Quick Actions
-                  const SectionHeader(title: 'Быстрые действия'),
+                  SectionHeader(title: AppTranslations.tr('quick_actions', lang)),
                   const SizedBox(height: 14),
                   Row(
                     children: [
                       _QuickAction(
                         icon: Icons.smart_toy_outlined,
-                        label: 'AI Юрист',
+                        label: AppTranslations.tr('action_ai', lang),
                         color: AppColors.gold,
                         bgColor: AppColors.borderGold,
                         onTap: () => context.go(AppRoutes.aiChat),
@@ -186,7 +188,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       _QuickAction(
                         icon: Icons.people_outline,
-                        label: 'Юристы',
+                        label: AppTranslations.tr('nav_search', lang),
                         color: AppColors.success,
                         bgColor: const Color(0xFF152D1A),
                         onTap: () => context.go(AppRoutes.lawyerMarketplace),
@@ -194,7 +196,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       _QuickAction(
                         icon: Icons.folder_outlined,
-                        label: 'Дела',
+                        label: AppTranslations.tr('action_cases', lang),
                         color: AppColors.warning,
                         bgColor: const Color(0xFF2D2415),
                         onTap: () => context.push(AppRoutes.myBookings),
@@ -205,8 +207,8 @@ class HomeDashboardScreen extends ConsumerWidget {
 
                   // Categories
                   SectionHeader(
-                    title: 'Категории',
-                    actionText: 'Все',
+                    title: 'Категории', // TODO: Add to translations if needed
+                    actionText: AppTranslations.tr('all_categories', lang),
                     onAction: () => context.go(AppRoutes.search),
                   ),
                   const SizedBox(height: 14),
@@ -257,8 +259,8 @@ class HomeDashboardScreen extends ConsumerWidget {
 
                   // Recent Questions
                   SectionHeader(
-                    title: 'Недавние вопросы',
-                    actionText: 'Все',
+                    title: 'Недавние вопросы', // TODO: added to translations later
+                    actionText: AppTranslations.tr('all_categories', lang),
                     onAction: () => context.go(AppRoutes.aiChat),
                   ),
                   const SizedBox(height: 14),

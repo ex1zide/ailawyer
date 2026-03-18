@@ -5,7 +5,7 @@ import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
-
+import 'package:legalhelp_kz/core/utils/translations.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -59,9 +59,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(languageProvider);
+
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      appBar: const CustomAppBar(title: 'Регистрация'),
+      appBar: CustomAppBar(title: AppTranslations.tr('register_now', lang)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -90,9 +92,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Text(
-                  'Email',
-                  style: TextStyle(
+                Text(
+                  AppTranslations.tr('email_hint', lang),
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                     fontFamily: 'Inter',
@@ -111,9 +113,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Пароль',
-                  style: TextStyle(
+                Text(
+                  AppTranslations.tr('password_hint', lang),
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                     fontFamily: 'Inter',
@@ -133,7 +135,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 40),
                 GoldButton(
-                  text: 'Зарегистрироваться',
+                  text: AppTranslations.tr('register_now', lang),
                   isLoading: _isLoading,
                   onTap: _register,
                 ),
@@ -147,9 +149,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     GestureDetector(
                       onTap: () => context.push('/login'),
-                      child: const Text(
-                        'Войти',
-                        style: TextStyle(
+                      child: Text(
+                        AppTranslations.tr('sign_in', lang),
+                        style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w600,
                         ),

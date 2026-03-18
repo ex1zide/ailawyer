@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 /// AI service powered by Google Gemini for Kazakhstan legal consultations.
 class OpenAIService {
   // Use the standard model ID
-  static const String _model = 'gemini-1.5-flash-latest';
+  static const String _model = 'gemini-2.5-flash';
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 

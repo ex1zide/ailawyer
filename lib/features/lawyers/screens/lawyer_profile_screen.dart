@@ -29,6 +29,13 @@ class LawyerProfileScreen extends ConsumerWidget {
         body: EmptyState(icon: '⚠️', title: 'Ошибка загрузки', subtitle: err.toString()),
       ),
       data: (lawyer) {
+        if (lawyer == null) {
+          return const Scaffold(
+            backgroundColor: AppColors.primaryBackground,
+            body: EmptyState(icon: '😕', title: 'Юрист не найден', subtitle: 'Возможно профиль был удален.'),
+          );
+        }
+        
         final isSaved = savedIds.contains(lawyer.id);
         
         return Scaffold(

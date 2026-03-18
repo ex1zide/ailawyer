@@ -142,7 +142,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final lawyerId = state.uri.queryParameters['lawyerId'] ?? '';
           final price = int.tryParse(state.uri.queryParameters['price'] ?? '0') ?? 0;
-          return PaymentScreen(lawyerId: lawyerId, price: price);
+          final dateStr = state.uri.queryParameters['date'] ?? '';
+          final typeStr = state.uri.queryParameters['type'] ?? 'online';
+          
+          return PaymentScreen(
+            lawyerId: lawyerId, 
+            price: price,
+            dateIso: dateStr,
+            typeStr: typeStr,
+          );
         },
       ),
       GoRoute(

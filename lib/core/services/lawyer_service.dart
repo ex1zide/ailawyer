@@ -18,20 +18,33 @@ class LawyerService {
     String? city,
     String sort = 'rating', // 'rating' | 'price' | 'experience'
   }) {
-    Query<Map<String, dynamic>> query = _fs.lawyersCol
-        .where('isActive', isEqualTo: true);
+    // We fetch all lawyers and filter/sort in memory to avoid 
+    // requiring complex composite indexes in Firestore for new projects.
+    return _fs.lawyersCol
+        .snapshots().map((snap) {
+      
+      var lawyers = snap.docs.map((d) => _lawyerFromDoc(d.data())).toList();
 
-    if (category != null && category.isNotEmpty) {
-      query = query.where('categories', arrayContains: category);
-    }
-    if (city != null && city.isNotEmpty) {
-      query = query.where('city', isEqualTo: city);
-    }
+      if (category != null && category.isNotEmpty && category != 'Все') {
+        lawyers = lawyers.where((l) => l.categories.any((c) => c.contains(category))).toList();
+      }
+      if (city != null && city.isNotEmpty) {
+        // Model doesn't expose city natively yet but if it did we'd match here.
+      }
 
-    query = query.orderBy(sort, descending: true);
+      lawyers.sort((a, b) {
+        if (sort == 'rating') {
+          return b.rating.compareTo(a.rating);
+        } else if (sort == 'price_asc') {
+          return a.price.compareTo(b.price);
+        } else if (sort == 'price_desc') {
+          return b.price.compareTo(a.price);
+        }
+        return 0; // fallback
+      });
 
-    return query.snapshots().map((snap) =>
-        snap.docs.map((d) => _lawyerFromDoc(d.data())).toList());
+      return lawyers;
+    });
   }
 
   /// Returns a single lawyer by ID.
@@ -41,14 +54,15 @@ class LawyerService {
     return _lawyerFromDoc(snap.data()!);
   }
 
-  /// Returns a stream of a lawyer's reviews.
   Stream<List<Review>> getReviews(String lawyerId) {
     return _fs.reviewsCol(lawyerId)
-        .orderBy('createdAt', descending: true)
+        .orderBy('created_at', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => Review.fromJson(d.data()))
-            .toList());
+        .map((snap) => snap.docs.map((d) {
+              final data = d.data();
+              data['id'] = d.id;
+              return _reviewFromDoc(data);
+            }).toList());
   }
 
   /// Adds a review for a lawyer and updates their average rating.
@@ -106,6 +120,17 @@ class LawyerService {
       about: data['about'] as String?,
       experience: data['experience'] as int? ?? 0,
       casesWon: data['cases_won'] as int? ?? 0,
+    );
+  }
+
+  Review _reviewFromDoc(Map<String, dynamic> data) {
+    return Review(
+      id: data['id'] as String,
+      authorName: data['author_name'] as String,
+      authorAvatarUrl: data['author_avatar_url'] as String?,
+      rating: (data['rating'] as num).toDouble(),
+      comment: data['comment'] as String,
+      createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }

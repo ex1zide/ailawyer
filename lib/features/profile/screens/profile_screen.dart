@@ -6,6 +6,7 @@ import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/core/utils/translations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -13,6 +14,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
+    final lang = ref.watch(languageProvider);
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
@@ -77,7 +79,7 @@ class ProfileScreen extends ConsumerWidget {
                       border: Border.all(color: user.plan == SubscriptionPlan.pro ? AppColors.gold : AppColors.border),
                     ),
                     child: Text(
-                      user.plan == SubscriptionPlan.pro ? '⭐ Pro подписка' : '🆓 Бесплатный план',
+                      user.plan == SubscriptionPlan.pro ? AppTranslations.tr('plan_pro', lang) : AppTranslations.tr('plan_free', lang),
                       style: TextStyle(
                         color: user.plan == SubscriptionPlan.pro ? AppColors.gold : AppColors.textSecondary,
                         fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'Inter',
@@ -88,11 +90,11 @@ class ProfileScreen extends ConsumerWidget {
                   // Stats
                   Row(
                     children: [
-                      _StatCard(value: '${user.questionsAsked}', label: 'Вопросов'),
+                      _StatCard(value: '${user.questionsAsked}', label: AppTranslations.tr('stat_questions', lang)),
                       const SizedBox(width: 12),
-                      _StatCard(value: '${user.documentsScanned}', label: 'Документов'),
+                      _StatCard(value: '${user.documentsScanned}', label: AppTranslations.tr('stat_documents', lang)),
                       const SizedBox(width: 12),
-                      _StatCard(value: '${user.lawyersContacted}', label: 'Юристов'),
+                      _StatCard(value: '${user.lawyersContacted}', label: AppTranslations.tr('stat_lawyers', lang)),
                     ],
                   ),
                 ],
@@ -106,29 +108,29 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   // Menu
                   _MenuSection(
-                    title: 'Аккаунт',
+                    title: AppTranslations.tr('menu_account', lang),
                     items: [
-                      _MenuItem(icon: Icons.person_outline, label: 'Редактировать профиль', onTap: () => context.push(AppRoutes.userProfile)),
-                      _MenuItem(icon: Icons.bookmark_outline, label: 'Сохранённые юристы', onTap: () => context.push(AppRoutes.savedLawyers)),
-                      _MenuItem(icon: Icons.calendar_today_outlined, label: 'Мои бронирования', onTap: () => context.push(AppRoutes.myBookings)),
-                      _MenuItem(icon: Icons.folder_outlined, label: 'Мои документы', onTap: () => context.push(AppRoutes.documentLibrary)),
+                      _MenuItem(icon: Icons.person_outline, label: AppTranslations.tr('menu_edit_profile', lang), onTap: () => context.push(AppRoutes.userProfile)),
+                      _MenuItem(icon: Icons.bookmark_outline, label: AppTranslations.tr('menu_saved_lawyers', lang), onTap: () => context.push(AppRoutes.savedLawyers)),
+                      _MenuItem(icon: Icons.calendar_today_outlined, label: AppTranslations.tr('menu_my_bookings', lang), onTap: () => context.push(AppRoutes.myBookings)),
+                      _MenuItem(icon: Icons.folder_outlined, label: AppTranslations.tr('menu_my_documents', lang), onTap: () => context.push(AppRoutes.documentLibrary)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _MenuSection(
-                    title: 'Подписка',
+                    title: AppTranslations.tr('menu_subscription', lang),
                     items: [
-                      _MenuItem(icon: Icons.diamond_outlined, label: 'Тарифные планы', onTap: () => context.push(AppRoutes.subscriptionPlans), hasGold: true),
-                      _MenuItem(icon: Icons.credit_card_outlined, label: 'Способы оплаты', onTap: () => context.push(AppRoutes.paymentMethods)),
+                      _MenuItem(icon: Icons.diamond_outlined, label: AppTranslations.tr('menu_plans', lang), onTap: () => context.push(AppRoutes.subscriptionPlans), hasGold: true),
+                      _MenuItem(icon: Icons.credit_card_outlined, label: AppTranslations.tr('menu_payments', lang), onTap: () => context.push(AppRoutes.paymentMethods)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _MenuSection(
-                    title: 'Настройки',
+                    title: AppTranslations.tr('settings', lang),
                     items: [
-                      _MenuItem(icon: Icons.settings_outlined, label: 'Настройки', onTap: () => context.push(AppRoutes.settings)),
-                      _MenuItem(icon: Icons.help_outline, label: 'Помощь и поддержка', onTap: () => context.push(AppRoutes.helpSupport)),
-                      _MenuItem(icon: Icons.phone_in_talk_outlined, label: 'Экстренные контакты', onTap: () => context.push(AppRoutes.emergencyContacts)),
+                      _MenuItem(icon: Icons.settings_outlined, label: AppTranslations.tr('settings', lang), onTap: () => context.push(AppRoutes.settings)),
+                      _MenuItem(icon: Icons.help_outline, label: AppTranslations.tr('menu_help', lang), onTap: () => context.push(AppRoutes.helpSupport)),
+                      _MenuItem(icon: Icons.phone_in_talk_outlined, label: AppTranslations.tr('menu_emergency', lang), onTap: () => context.push(AppRoutes.emergencyContacts)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -146,12 +148,12 @@ class ProfileScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: AppColors.error.withOpacity(0.3)),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.logout_outlined, color: AppColors.error, size: 18),
-                          SizedBox(width: 8),
-                          Text('Выйти из аккаунта', style: TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
+                          const Icon(Icons.logout_outlined, color: AppColors.error, size: 18),
+                          const SizedBox(width: 8),
+                          Text(AppTranslations.tr('logout', lang), style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
                         ],
                       ),
                     ),

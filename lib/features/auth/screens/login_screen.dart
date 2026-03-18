@@ -5,6 +5,7 @@ import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/core/utils/translations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -58,9 +59,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(languageProvider);
+
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      appBar: const CustomAppBar(title: 'Вход'),
+      appBar: CustomAppBar(title: AppTranslations.tr('login', lang)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -89,9 +92,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Text(
-                  'Email',
-                  style: TextStyle(
+                Text(
+                  AppTranslations.tr('email_hint', lang),
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                     fontFamily: 'Inter',
@@ -110,9 +113,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Пароль',
-                  style: TextStyle(
+                Text(
+                  AppTranslations.tr('password_hint', lang),
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                     fontFamily: 'Inter',
@@ -131,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 GoldButton(
-                  text: 'Войти',
+                  text: AppTranslations.tr('sign_in', lang),
                   isLoading: _isLoading,
                   onTap: _login,
                 ),
@@ -139,15 +142,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Нет аккаунта? ',
-                      style: TextStyle(color: AppColors.textSecondary),
+                    Text(
+                      '${AppTranslations.tr('no_account', lang)} ',
+                      style: const TextStyle(color: AppColors.textSecondary),
                     ),
                     GestureDetector(
                       onTap: () => context.push('/register'),
-                      child: const Text(
-                        'Зарегистрироваться',
-                        style: TextStyle(
+                      child: Text(
+                        AppTranslations.tr('register_now', lang),
+                        style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w600,
                         ),

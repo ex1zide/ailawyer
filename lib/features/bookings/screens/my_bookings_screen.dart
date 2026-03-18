@@ -7,13 +7,15 @@ import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
 
-class MyBookingsScreen extends StatefulWidget {
+import 'package:legalhelp_kz/providers/providers.dart';
+
+class MyBookingsScreen extends ConsumerStatefulWidget {
   const MyBookingsScreen({super.key});
   @override
-  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+  ConsumerState<MyBookingsScreen> createState() => _MyBookingsScreenState();
 }
 
-class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerProviderStateMixin {
+class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with SingleTickerProviderStateMixin {
   late TabController _tab;
 
   @override
@@ -35,8 +37,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final upcoming = MockData.bookings.where((b) => b.status == BookingStatus.upcoming).toList();
-    final past = MockData.bookings.where((b) => b.status != BookingStatus.upcoming).toList();
+    final bookingsAsync = ref.watch(bookingsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
@@ -58,12 +59,21 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
           ),
         ],
       ),
-      body: TabBarView(
-        controller: _tab,
-        children: [
-          _BookingList(bookings: upcoming, statusColor: _statusColor),
-          _BookingList(bookings: past, statusColor: _statusColor),
-        ],
+      body: bookingsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.gold)),
+        error: (err, _) => Center(child: Text('Ошибка загрузки: $err', style: const TextStyle(color: AppColors.error))),
+        data: (bookings) {
+          final upcoming = bookings.where((b) => b.status == BookingStatus.upcoming).toList();
+          final past = bookings.where((b) => b.status != BookingStatus.upcoming).toList();
+
+          return TabBarView(
+            controller: _tab,
+            children: [
+              _BookingList(bookings: upcoming, statusColor: _statusColor),
+              _BookingList(bookings: past, statusColor: _statusColor),
+            ],
+          );
+        },
       ),
     );
   }

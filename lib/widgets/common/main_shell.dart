@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
+import 'package:legalhelp_kz/core/utils/translations.dart';
 
 class MainShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -42,6 +43,8 @@ class _MainShellState extends ConsumerState<MainShell> {
       });
     }
 
+    final lang = ref.watch(languageProvider);
+
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: Container(
@@ -60,21 +63,21 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _NavItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'Главная',
+                  label: AppTranslations.tr('nav_home', lang),
                   isActive: _selectedIndex == 0,
                   onTap: () => _onTap(0),
                 ),
                 _NavItem(
                   icon: Icons.search_outlined,
                   activeIcon: Icons.search,
-                  label: 'Поиск',
+                  label: AppTranslations.tr('nav_docs', lang), // search maps to docs in our setup
                   isActive: _selectedIndex == 1,
                   onTap: () => _onTap(1),
                 ),
                 _NavItem(
                   icon: Icons.chat_bubble_outline,
                   activeIcon: Icons.chat_bubble,
-                  label: 'AI Чат',
+                  label: AppTranslations.tr('nav_chat', lang),
                   isActive: _selectedIndex == 2,
                   onTap: () => _onTap(2),
                   isHighlighted: true,
@@ -82,14 +85,14 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _NavItem(
                   icon: Icons.people_outline,
                   activeIcon: Icons.people,
-                  label: 'Юристы',
+                  label: AppTranslations.tr('nav_search', lang), // "Lawyers"
                   isActive: _selectedIndex == 3,
                   onTap: () => _onTap(3),
                 ),
                 _NavItem(
                   icon: Icons.person_outline,
                   activeIcon: Icons.person,
-                  label: 'Профиль',
+                  label: AppTranslations.tr('nav_profile', lang),
                   isActive: _selectedIndex == 4,
                   onTap: () => _onTap(4),
                   badgeCount: unreadCount,

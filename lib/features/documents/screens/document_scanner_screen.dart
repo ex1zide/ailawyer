@@ -4,13 +4,16 @@ import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
 
-class DocumentScannerScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
+
+class DocumentScannerScreen extends ConsumerStatefulWidget {
   const DocumentScannerScreen({super.key});
   @override
-  State<DocumentScannerScreen> createState() => _DocumentScannerScreenState();
+  ConsumerState<DocumentScannerScreen> createState() => _DocumentScannerScreenState();
 }
 
-class _DocumentScannerScreenState extends State<DocumentScannerScreen>
+class _DocumentScannerScreenState extends ConsumerState<DocumentScannerScreen>
     with SingleTickerProviderStateMixin {
   bool _flashOn = false;
   bool _isProcessing = false;
@@ -197,9 +200,11 @@ class _CornerPainter extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-class _ResultView extends StatelessWidget {
+class _ResultView extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    const defaultText = 'ДОГОВОР АРЕНДЫ ЖИЛОГО ПОМЕЩЕНИЯ\n\nгор. Алматы «02» марта 2026 г.\n\nАрендодатель: Иванов И.И.\nАрендатор: Петров П.П.\n\nПредмет договора: квартира по адресу...';
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -212,12 +217,26 @@ class _ResultView extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
             child: const Text(
-              'ДОГОВОР АРЕНДЫ ЖИЛОГО ПОМЕЩЕНИЯ\n\nгор. Алматы «02» марта 2026 г.\n\nАрендодатель: Иванов И.И.\nАрендатор: Петров П.П.\n\nПредмет договора: квартира по адресу...',
+              defaultText,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontFamily: 'Inter', height: 1.5),
             ),
           ),
           const SizedBox(height: 20),
-          GoldButton(text: 'Сохранить в библиотеку', onTap: () => context.push(AppRoutes.documentLibrary)),
+          GoldButton(
+            text: 'Сохранить в библиотеку', 
+            onTap: () async {
+              final uid = ref.read(authProvider).user?.id;
+              if (uid != null) {
+                await ref.read(documentServiceProvider).saveTextDocument(
+                  userId: uid,
+                  name: 'Распознанный документ (${DateTime.now().second}s)',
+                  extractedText: defaultText,
+                  type: 'Contracts',
+                );
+              }
+              context.pop();
+            }
+          ),
           const SizedBox(height: 10),
           GoldButton(text: 'Сканировать ещё', isOutlined: true, onTap: () => Navigator.pop(context)),
         ],
@@ -225,3 +244,4 @@ class _ResultView extends StatelessWidget {
     );
   }
 }
+

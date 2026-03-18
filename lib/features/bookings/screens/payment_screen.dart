@@ -3,35 +3,74 @@ import 'package:go_router/go_router.dart';
 import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
+import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   final String lawyerId;
   final int price;
-  const PaymentScreen({super.key, required this.lawyerId, required this.price});
+  final String dateIso;
+  final String typeStr;
+
+  const PaymentScreen({
+    super.key, 
+    required this.lawyerId, 
+    required this.price,
+    required this.dateIso,
+    required this.typeStr,
+  });
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   String _selectedPayment = 'pm001';
   bool _isProcessing = false;
 
   Future<void> _pay() async {
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      context.go(AppRoutes.paymentSuccess);
+    
+    try {
+      final user = ref.read(authProvider).user;
+      if (user == null) throw Exception('Пользователь не авторизован');
+
+      final date = DateTime.tryParse(widget.dateIso) ?? DateTime.now();
+      final type = widget.typeStr == 'phone' ? ConsultationType.phone 
+                 : widget.typeStr == 'inPerson' ? ConsultationType.inPerson 
+                 : ConsultationType.online;
+
+      await ref.read(bookingServiceProvider).createBooking(
+        userId: user.id,
+        lawyerId: widget.lawyerId,
+        dateTime: date,
+        type: type,
+        price: widget.price,
+      );
+
+      if (mounted) context.go(AppRoutes.paymentSuccess);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка оплаты: $e')));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final methods = MockData.paymentMethods;
-    final lawyer = MockData.lawyers.firstWhere((l) => l.id == widget.lawyerId, orElse: () => MockData.lawyers.first);
+    final lawyerAsync = ref.watch(lawyerProfileProvider(widget.lawyerId));
 
-    return Scaffold(
+    return lawyerAsync.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(body: Center(child: Text('Ошибка: $e'))),
+      data: (lawyer) {
+        if (lawyer == null) return const Scaffold(body: Center(child: Text('Юрист не найден')));
+
+        return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: const CustomAppBar(title: 'Оплата'),
       body: Padding(
@@ -127,6 +166,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 }

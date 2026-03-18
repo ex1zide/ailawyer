@@ -7,49 +7,53 @@ import 'package:legalhelp_kz/config/constants.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 
-class OnboardingScreen extends StatefulWidget {
+import 'package:legalhelp_kz/core/utils/translations.dart';
+
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
 
-  final List<_OnboardingPage> _pages = [
-    _OnboardingPage(
-      emoji: '⚡',
-      title: 'Юридические ответы\nза 30 секунд',
-      subtitle: 'AI-юрист понимает ваши вопросы\nна русском и казахском языках',
-      features: [],
-      gradient: [Color(0xFF1A1500), Color(0xFF0A0A0A)],
-    ),
-    _OnboardingPage(
-      emoji: '💰',
-      title: 'Сэкономьте 50 000 ₸\nна юристах',
-      subtitle: 'Получайте профессиональную\nюридическую помощь по доступной цене',
-      features: [
-        '✅ Бесплатные AI-консультации',
-        '✅ Юристы от 5 000 ₸/час',
-        '✅ Шаблоны документов',
-        '✅ Анализ договоров',
-      ],
-      gradient: [Color(0xFF0D1A0A), Color(0xFF0A0A0A)],
-    ),
-    _OnboardingPage(
-      emoji: '🌍',
-      title: 'Настройте под\nсебя',
-      subtitle: 'Выберите язык, город и\nинтересующие вас темы права',
-      features: [],
-      isSetup: true,
-      gradient: [Color(0xFF0A0A1A), Color(0xFF0A0A0A)],
-    ),
-  ];
+  List<_OnboardingPage> _getPages(String lang) {
+    return [
+      _OnboardingPage(
+        emoji: '⚡',
+        title: AppTranslations.tr('onboarding1_title', lang),
+        subtitle: AppTranslations.tr('onboarding1_sub', lang),
+        features: [],
+        gradient: const [Color(0xFF1A1500), Color(0xFF0A0A0A)],
+      ),
+      _OnboardingPage(
+        emoji: '💰',
+        title: AppTranslations.tr('onboarding2_title', lang),
+        subtitle: AppTranslations.tr('onboarding2_sub', lang),
+        features: [
+          '✅ Бесплатные AI-консультации',
+          '✅ Юристы от 5 000 ₸/час',
+          '✅ Шаблоны документов',
+          '✅ Анализ договоров',
+        ],
+        gradient: const [Color(0xFF0D1A0A), Color(0xFF0A0A0A)],
+      ),
+      _OnboardingPage(
+        emoji: '🌍',
+        title: AppTranslations.tr('onboarding3_title', lang),
+        subtitle: AppTranslations.tr('onboarding3_sub', lang),
+        features: [],
+        isSetup: true,
+        gradient: const [Color(0xFF0A0A1A), Color(0xFF0A0A0A)],
+      ),
+    ];
+  }
 
   void _next() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage < 2) { // 3 pages total
       _controller.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
@@ -67,6 +71,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(languageProvider);
+    final pages = _getPages(lang);
+
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       body: Stack(
@@ -74,8 +81,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           PageView.builder(
             controller: _controller,
             onPageChanged: (i) => setState(() => _currentPage = i),
-            itemCount: _pages.length,
-            itemBuilder: (context, i) => _PageView(page: _pages[i]),
+            itemCount: pages.length,
+            itemBuilder: (context, i) => _PageView(page: pages[i]),
           ),
           // Bottom controls
           Positioned(
@@ -102,7 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     // Page indicators
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_pages.length, (i) {
+                      children: List.generate(pages.length, (i) {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -138,8 +145,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         Expanded(
                           child: GoldButton(
-                            text: _currentPage == _pages.length - 1
-                                ? 'Начать'
+                            text: _currentPage == pages.length - 1
+                                ? AppTranslations.tr('sign_in', lang)
                                 : 'Далее',
                             onTap: _next,
                           ),
@@ -150,9 +157,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     // Skip button always visible
                     GestureDetector(
                       onTap: () => context.push(AppRoutes.login),
-                      child: const Text(
-                        'Пропустить',
-                        style: TextStyle(
+                      child: Text(
+                        AppTranslations.tr('skip', lang),
+                        style: const TextStyle(
                           color: AppColors.textTertiary,
                           fontSize: 13,
                           fontFamily: 'Inter',

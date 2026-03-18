@@ -13,7 +13,11 @@ import 'package:legalhelp_kz/core/services/chat_service.dart';
 import 'package:legalhelp_kz/core/services/lawyer_service.dart';
 import 'package:legalhelp_kz/core/services/booking_service.dart';
 import 'package:legalhelp_kz/core/services/document_service.dart';
+import 'package:legalhelp_kz/core/services/news_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// ─── Global Service Instances ───────────────────────────────────────────────
+final newsService = NewsService();
 
 // ─── Auth Provider ────────────────────────────────────────────────────────────
 
@@ -308,12 +312,12 @@ final lawyersProvider = StreamProvider<List<Lawyer>>((ref) {
   );
 });
 
-final lawyerProfileProvider = FutureProvider.family<Lawyer, String>((ref, id) {
-  return ref.watch(lawyerRepositoryProvider).getLawyerById(id);
+final lawyerProfileProvider = FutureProvider.family<Lawyer?, String>((ref, id) {
+  return ref.watch(lawyerServiceProvider).getLawyerById(id);
 });
 
-final reviewsProvider = FutureProvider.family<List<Review>, String>((ref, id) {
-  return ref.watch(lawyerRepositoryProvider).getReviews(id);
+final reviewsProvider = StreamProvider.family<List<Review>, String>((ref, id) {
+  return ref.watch(lawyerServiceProvider).getReviews(id);
 });
 
 // ─── Notifications Provider ───────────────────────────────────────────────────
@@ -370,6 +374,12 @@ final bookingsProvider = StreamProvider<List<Booking>>((ref) {
   final uid = ref.watch(authProvider).user?.id;
   if (uid == null) return Stream.value([]);
   return ref.watch(bookingServiceProvider).getUserBookings(uid);
+});
+
+// ─── News Provider ────────────────────────────────────────────────────────────
+
+final newsProvider = FutureProvider<List<LegalNews>>((ref) async {
+  return await newsService.fetchRealNews();
 });
 
 // ─── Saved Lawyers Provider ───────────────────────────────────────────────────

@@ -40,7 +40,7 @@ class BookingService {
   Stream<List<Booking>> getUserBookings(String userId) {
     return _fs.bookingsCol
         .where('userId', isEqualTo: userId)
-        .orderBy('dateTime', descending: true)
+        // .orderBy('dateTime', descending: true) // Disabled to avoid composite index requirement
         .snapshots()
         .asyncMap((snap) async {
       final bookings = <Booking>[];
@@ -51,6 +51,8 @@ class BookingService {
           bookings.add(_bookingFromDoc(data, lawyer));
         }
       }
+      // Sort locally descending by date
+      bookings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
       return bookings;
     });
   }
