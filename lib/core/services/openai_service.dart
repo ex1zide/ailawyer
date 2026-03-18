@@ -9,7 +9,7 @@ class OpenAIService {
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 
   // Gemini API key
-  String _apiKey = 'AIzaSyA4E6uyNpr8JUY82NWp22dlT4eIjL2DzdI';
+  String _apiKey = ''; // TODO: Inject via environment variables or secure storage
 
   void setApiKey(String key) => _apiKey = key;
   bool get hasApiKey => _apiKey.isNotEmpty;
