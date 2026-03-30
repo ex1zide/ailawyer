@@ -87,10 +87,12 @@ class DocumentService {
   Stream<List<Document>> getUserDocuments(String userId) {
     return _fs.documentsCol
         .where('userId', isEqualTo: userId)
-        .orderBy('created_at', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => _documentFromDoc(d.data())).toList());
+        .map((snap) {
+          final docs = snap.docs.map((d) => _documentFromDoc(d.data())).toList();
+          docs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return docs;
+        });
   }
 
   /// Updates the extracted text for a document.
@@ -123,3 +125,4 @@ class DocumentService {
     );
   }
 }
+

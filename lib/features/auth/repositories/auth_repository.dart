@@ -1,11 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legalhelp_kz/core/api/api_client.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/core/auth/auth_service.dart';
 import 'package:legalhelp_kz/core/services/user_service.dart';
-import 'package:legalhelp_kz/core/services/firestore_service.dart';
-import 'package:legalhelp_kz/core/services/storage_service.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 
 final authServiceProvider = Provider((ref) => AuthService());
@@ -14,7 +14,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
     ref.watch(apiClientProvider),
     ref.watch(authServiceProvider),
-    UserService(FirestoreService(), StorageService()),
+    ref.watch(userServiceProvider),
   );
 });
 
@@ -36,7 +36,8 @@ class AuthRepository {
   }
 
   Future<User> verifyOtp(String phone, String code) async {
-    if (code == '123456') {
+    // Debug-only OTP bypass for testing
+    if (kDebugMode && code == '123456') {
       return MockData.currentUser;
     }
     final response = await _apiClient.post('/auth/verify-otp', data: {
@@ -75,3 +76,4 @@ class AuthRepository {
     await _authService.signOut();
   }
 }
+

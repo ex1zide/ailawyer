@@ -243,3 +243,4 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
     );
   }
 }
+

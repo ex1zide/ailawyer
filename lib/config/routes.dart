@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/features/auth/screens/splash_screen.dart';
 import 'package:legalhelp_kz/features/auth/screens/onboarding_screen.dart';
 import 'package:legalhelp_kz/features/auth/screens/phone_auth_screen.dart';
@@ -71,6 +72,35 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final auth = ref.read(authProvider);
+      final isAuthenticated = auth.isAuthenticated;
+      final currentPath = state.uri.path;
+
+      // Auth screens that don't require login
+      const authPaths = [
+        AppRoutes.splash,
+        AppRoutes.onboarding,
+        AppRoutes.phoneAuth,
+        AppRoutes.smsVerification,
+        AppRoutes.profileSetup,
+        AppRoutes.register,
+        AppRoutes.login,
+      ];
+      final isAuthRoute = authPaths.contains(currentPath);
+
+      // If not authenticated and trying to access a protected route
+      if (!isAuthenticated && !isAuthRoute) {
+        return AppRoutes.phoneAuth;
+      }
+
+      // If authenticated and trying to access an auth route (except splash)
+      if (isAuthenticated && isAuthRoute && currentPath != AppRoutes.splash) {
+        return AppRoutes.home;
+      }
+
+      return null; // No redirect
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -243,3 +273,4 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+

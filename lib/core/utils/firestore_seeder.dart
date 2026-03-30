@@ -14,16 +14,20 @@ class FirestoreSeeder {
   Future<void> seedLawyers() async {
     final lawyers = _kazakhstanLawyers();
 
+    // Fetch all existing lawyer IDs in one query
+    final existingDocs = await _db.collection('lawyers').get();
+    final existingIds = existingDocs.docs.map((d) => d.id).toSet();
+
     final batch = _db.batch();
+    bool hasNewData = false;
     for (final lawyer in lawyers) {
-      final ref = _db.collection('lawyers').doc(lawyer['id'] as String);
-      // Only seed if not already present
-      final exists = await ref.get();
-      if (!exists.exists) {
-        batch.set(ref, lawyer);
+      final id = lawyer['id'] as String;
+      if (!existingIds.contains(id)) {
+        batch.set(_db.collection('lawyers').doc(id), lawyer);
+        hasNewData = true;
       }
     }
-    await batch.commit();
+    if (hasNewData) await batch.commit();
   }
 
   List<Map<String, dynamic>> _kazakhstanLawyers() {
@@ -183,3 +187,4 @@ class FirestoreSeeder {
     ];
   }
 }
+

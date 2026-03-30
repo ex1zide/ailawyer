@@ -57,7 +57,13 @@ class LawyerProfileScreen extends ConsumerWidget {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go('/home');
+                              }
+                            },
                             child: Container(
                               width: 40, height: 40,
                               decoration: BoxDecoration(color: AppColors.secondaryBackground, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
@@ -265,3 +271,4 @@ class _ReviewCard extends StatelessWidget {
     ),
   );
 }
+

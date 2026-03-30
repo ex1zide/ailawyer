@@ -25,42 +25,36 @@ class MockData {
       name: 'ДТП',
       icon: '🚗',
       color: Color(0xFFEF4444),
-      bgColor: Color(0xFF2D1515),
     ),
     Category(
       id: 'labor',
       name: 'Трудовое',
       icon: '💼',
       color: Color(0xFF3B82F6),
-      bgColor: Color(0xFF151F2D),
     ),
     Category(
       id: 'family',
       name: 'Семейное',
       icon: '❤️',
       color: Color(0xFFEC4899),
-      bgColor: Color(0xFF2D1520),
     ),
     Category(
       id: 'realestate',
       name: 'Недвижимость',
       icon: '🏠',
       color: Color(0xFF22C55E),
-      bgColor: Color(0xFF152D1A),
     ),
     Category(
       id: 'business',
       name: 'Бизнес',
       icon: '🏢',
       color: Color(0xFFF59E0B),
-      bgColor: Color(0xFF2D2415),
     ),
     Category(
       id: 'documents',
       name: 'Документы',
       icon: '📄',
       color: Color(0xFF8B5CF6),
-      bgColor: Color(0xFF1E152D),
     ),
   ];
 
@@ -456,3 +450,4 @@ class MockData {
   // ─── Saved Lawyers ───────────────────────────────────────────────────
   static List<Lawyer> get savedLawyers => [lawyers[0], lawyers[2], lawyers[5]];
 }
+

@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/services/firestore_service.dart';
 import 'package:legalhelp_kz/core/services/openai_service.dart';
+import 'package:legalhelp_kz/core/utils/list_extensions.dart';
 
 /// Manages chat sessions and messages, integrating Firestore + OpenAI.
 class ChatService {
@@ -74,7 +75,7 @@ class ChatService {
     await _saveMessage(chatId, userMsgId, userText, isUser: true);
 
     // 2. Build conversation history for context (last 10 messages)
-    final openAiHistory = history.takeLast(10).map((m) => {
+    final openAiHistory = history.takeLast(10).map((m) => <String, String>{
           'role': m.isUser ? 'user' : 'assistant',
           'content': m.text,
         }).toList();
@@ -128,7 +129,5 @@ class ChatService {
   }
 }
 
-extension _ListExtension<T> on List<T> {
-  List<T> takeLast(int n) =>
-      length > n ? sublist(length - n) : this;
-}
+
+

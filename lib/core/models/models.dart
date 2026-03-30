@@ -44,9 +44,14 @@ class User {
   });
 
   String get fullName {
-    if (firstName != null && lastName != null) return '$firstName $lastName';
-    if (firstName != null) return firstName!;
-    return phone;
+    final hasFirst = firstName != null && firstName!.trim().isNotEmpty;
+    final hasLast = lastName != null && lastName!.trim().isNotEmpty;
+    
+    if (hasFirst && hasLast) return '${firstName!.trim()} ${lastName!.trim()}';
+    if (hasFirst) return firstName!.trim();
+    if (hasLast) return lastName!.trim();
+    if (phone.trim().isNotEmpty) return phone;
+    return 'Пользователь';
   }
 
   User copyWith({
@@ -195,14 +200,12 @@ class Category {
   final String name;
   final String icon;
   final Color color;
-  final Color bgColor;
 
   const Category({
     required this.id,
     required this.name,
     required this.icon,
     required this.color,
-    required this.bgColor,
   });
 }
 
@@ -455,3 +458,4 @@ class PaymentMethod {
     this.isDefault = false,
   });
 }
+

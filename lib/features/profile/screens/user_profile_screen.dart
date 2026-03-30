@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
@@ -39,7 +40,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Row(children: [Text('✅ '), Text('Профиль сохранён')])),
     );
-    Navigator.pop(context);
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
+    }
   }
 
   @override
@@ -127,3 +132,4 @@ class _Label extends StatelessWidget {
     child: Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
   );
 }
+

@@ -283,3 +283,4 @@ class _SearchHistoryItem extends StatelessWidget {
     );
   }
 }
+

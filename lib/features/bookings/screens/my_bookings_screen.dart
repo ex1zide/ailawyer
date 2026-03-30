@@ -163,3 +163,4 @@ class _BookingInfo extends StatelessWidget {
     ],
   );
 }
+

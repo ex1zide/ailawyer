@@ -24,15 +24,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return [
       _OnboardingPage(
         emoji: '⚡',
-        title: AppTranslations.tr('onboarding1_title', lang),
-        subtitle: AppTranslations.tr('onboarding1_sub', lang),
+        title: ref.tr('onboarding1_title'),
+        subtitle: ref.tr('onboarding1_sub'),
         features: [],
         gradient: const [Color(0xFF1A1500), Color(0xFF0A0A0A)],
       ),
       _OnboardingPage(
         emoji: '💰',
-        title: AppTranslations.tr('onboarding2_title', lang),
-        subtitle: AppTranslations.tr('onboarding2_sub', lang),
+        title: ref.tr('onboarding2_title'),
+        subtitle: ref.tr('onboarding2_sub'),
         features: [
           '✅ Бесплатные AI-консультации',
           '✅ Юристы от 5 000 ₸/час',
@@ -43,8 +43,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       _OnboardingPage(
         emoji: '🌍',
-        title: AppTranslations.tr('onboarding3_title', lang),
-        subtitle: AppTranslations.tr('onboarding3_sub', lang),
+        title: ref.tr('onboarding3_title'),
+        subtitle: ref.tr('onboarding3_sub'),
         features: [],
         isSetup: true,
         gradient: const [Color(0xFF0A0A1A), Color(0xFF0A0A0A)],
@@ -146,7 +146,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Expanded(
                           child: GoldButton(
                             text: _currentPage == pages.length - 1
-                                ? AppTranslations.tr('sign_in', lang)
+                                ? ref.tr('sign_in')
                                 : 'Далее',
                             onTap: _next,
                           ),
@@ -158,7 +158,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     GestureDetector(
                       onTap: () => context.push(AppRoutes.login),
                       child: Text(
-                        AppTranslations.tr('skip', lang),
+                        ref.tr('skip'),
                         style: const TextStyle(
                           color: AppColors.textTertiary,
                           fontSize: 13,
@@ -415,3 +415,4 @@ class _PageViewState extends ConsumerState<_PageView> {
     );
   }
 }
+

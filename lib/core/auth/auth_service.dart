@@ -66,3 +66,4 @@ class AuthService {
     throw Exception(message);
   }
 }
+

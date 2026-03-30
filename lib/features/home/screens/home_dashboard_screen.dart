@@ -35,7 +35,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                   20, MediaQuery.of(context).padding.top + 32, 20, 20),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1A1500), Color(0xFF0A0A0A)],
+                  colors: [AppColors.secondaryBackground, AppColors.primaryBackground], // Changed to match Dark AI theme
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -50,7 +50,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${AppTranslations.tr('greeting', lang)}, 👋',
+                              '${ref.tr('greeting')}, 👋',
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 14,
@@ -58,7 +58,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              user.firstName ?? 'Пользователь',
+                              user.fullName,
                               style: const TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 22,
@@ -143,7 +143,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                           const Icon(Icons.search, color: AppColors.textTertiary, size: 20),
                           const SizedBox(width: 10),
                           Text(
-                            AppTranslations.tr('ask_question_hint', lang),
+                            ref.tr('ask_question_hint'),
                             style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 14,
@@ -166,15 +166,15 @@ class HomeDashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Quick Actions
-                  SectionHeader(title: AppTranslations.tr('quick_actions', lang)),
+                  SectionHeader(title: ref.tr('quick_actions')),
                   const SizedBox(height: 14),
                   Row(
                     children: [
                       _QuickAction(
                         icon: Icons.smart_toy_outlined,
-                        label: AppTranslations.tr('action_ai', lang),
-                        color: AppColors.gold,
-                        bgColor: AppColors.borderGold,
+                        label: ref.tr('action_ai'),
+                        color: AppColors.activeAccent, // Changed to activeAccent (blue)
+                        bgColor: AppColors.activeAccent.withOpacity(0.1),
                         onTap: () => context.go(AppRoutes.aiChat),
                       ),
                       const SizedBox(width: 12),
@@ -182,23 +182,23 @@ class HomeDashboardScreen extends ConsumerWidget {
                         icon: Icons.document_scanner_outlined,
                         label: 'Документы',
                         color: AppColors.info,
-                        bgColor: const Color(0xFF151F2D),
+                        bgColor: AppColors.info.withOpacity(0.1),
                         onTap: () => context.push(AppRoutes.documentLibrary),
                       ),
                       const SizedBox(width: 12),
                       _QuickAction(
                         icon: Icons.people_outline,
-                        label: AppTranslations.tr('nav_search', lang),
+                        label: ref.tr('nav_search'),
                         color: AppColors.success,
-                        bgColor: const Color(0xFF152D1A),
+                        bgColor: AppColors.success.withOpacity(0.1),
                         onTap: () => context.go(AppRoutes.lawyerMarketplace),
                       ),
                       const SizedBox(width: 12),
                       _QuickAction(
                         icon: Icons.folder_outlined,
-                        label: AppTranslations.tr('action_cases', lang),
+                        label: ref.tr('action_cases'),
                         color: AppColors.warning,
-                        bgColor: const Color(0xFF2D2415),
+                        bgColor: AppColors.warning.withOpacity(0.1),
                         onTap: () => context.push(AppRoutes.myBookings),
                       ),
                     ],
@@ -208,7 +208,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                   // Categories
                   SectionHeader(
                     title: 'Категории', // TODO: Add to translations if needed
-                    actionText: AppTranslations.tr('all_categories', lang),
+                    actionText: ref.tr('all_categories'),
                     onAction: () => context.go(AppRoutes.search),
                   ),
                   const SizedBox(height: 14),
@@ -224,32 +224,36 @@ class HomeDashboardScreen extends ConsumerWidget {
                     itemCount: MockData.categories.length,
                     itemBuilder: (context, i) {
                       final cat = MockData.categories[i];
-                      return GestureDetector(
-                        onTap: () => context.go(AppRoutes.lawyerMarketplace),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: cat.bgColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: cat.color.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(cat.icon,
-                                  style: const TextStyle(fontSize: 30)),
-                              const SizedBox(height: 8),
-                              Text(
-                                cat.name,
-                                style: TextStyle(
-                                  color: cat.color,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  ),
-                                textAlign: TextAlign.center,
+                      return Material(
+                        color: AppColors.secondaryBackground,
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          onTap: () => context.go(AppRoutes.lawyerMarketplace),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.border,
                               ),
-                            ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(cat.icon,
+                                    style: const TextStyle(fontSize: 30)),
+                                const SizedBox(height: 8),
+                                Text(
+                                  cat.name,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -260,7 +264,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                   // Recent Questions
                   SectionHeader(
                     title: 'Недавние вопросы', // TODO: added to translations later
-                    actionText: AppTranslations.tr('all_categories', lang),
+                    actionText: ref.tr('all_categories'),
                     onAction: () => context.go(AppRoutes.aiChat),
                   ),
                   const SizedBox(height: 14),
@@ -332,30 +336,34 @@ class _QuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 26),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Inter',
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 26),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Inter',
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -378,67 +386,73 @@ class _RecentQuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.secondaryBackground,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.secondaryBackground,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.borderGold,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Center(
-                child: Icon(Icons.chat_bubble_outline,
-                    color: AppColors.gold, size: 18),
-              ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    question,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Inter',
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.activeAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
+                  child: const Center(
+                    child: Icon(Icons.chat_bubble_outline,
+                        color: AppColors.activeAccent, size: 18),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GoldBadge(text: category, small: true),
-                      const SizedBox(width: 8),
                       Text(
-                        time,
+                        question,
                         style: const TextStyle(
-                          color: AppColors.textTertiary,
-                          fontSize: 11,
+                          color: AppColors.textPrimary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                           fontFamily: 'Inter',
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          GoldBadge(text: category, small: true),
+                          const SizedBox(width: 8),
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              color: AppColors.textTertiary,
+                              fontSize: 11,
+                              fontFamily: 'Inter',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const Icon(Icons.arrow_forward_ios,
+                    color: AppColors.textTertiary, size: 14),
+              ],
             ),
-            const Icon(Icons.arrow_forward_ios,
-                color: AppColors.textTertiary, size: 14),
-          ],
+          ),
         ),
       ),
     );
@@ -461,38 +475,43 @@ class _ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: isHighlighted
-                ? AppColors.error.withOpacity(0.15)
-                : AppColors.secondaryBackground,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isHighlighted
-                  ? AppColors.error.withOpacity(0.4)
-                  : AppColors.border,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 24)),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isHighlighted ? AppColors.error : AppColors.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Inter',
-                ),
+      child: Material(
+        color: isHighlighted
+            ? AppColors.error.withOpacity(0.15)
+            : AppColors.secondaryBackground,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isHighlighted
+                    ? AppColors.error.withOpacity(0.4)
+                    : AppColors.border,
               ),
-            ],
+            ),
+            child: Column(
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 24)),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isHighlighted ? AppColors.error : AppColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+

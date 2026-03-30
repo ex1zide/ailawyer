@@ -19,7 +19,7 @@ class ChatRepository {
   Future<ChatMessage> sendMessage(String text, {List<ChatMessage> history = const []}) async {
     try {
       // Build history for context
-      final openAiHistory = history.map((m) => {
+      final openAiHistory = history.map((m) => <String, String>{
         'role': m.isUser ? 'user' : 'assistant',
         'content': m.text,
       }).toList();
@@ -41,3 +41,4 @@ class ChatRepository {
   Future<List<ChatMessage>> getHistory() async => [];
   Future<void> clearHistory() async {}
 }
+

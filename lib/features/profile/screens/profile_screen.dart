@@ -14,7 +14,6 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
-    final lang = ref.watch(languageProvider);
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
@@ -79,7 +78,7 @@ class ProfileScreen extends ConsumerWidget {
                       border: Border.all(color: user.plan == SubscriptionPlan.pro ? AppColors.gold : AppColors.border),
                     ),
                     child: Text(
-                      user.plan == SubscriptionPlan.pro ? AppTranslations.tr('plan_pro', lang) : AppTranslations.tr('plan_free', lang),
+                      user.plan == SubscriptionPlan.pro ? ref.tr('plan_pro') : ref.tr('plan_free'),
                       style: TextStyle(
                         color: user.plan == SubscriptionPlan.pro ? AppColors.gold : AppColors.textSecondary,
                         fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'Inter',
@@ -90,11 +89,11 @@ class ProfileScreen extends ConsumerWidget {
                   // Stats
                   Row(
                     children: [
-                      _StatCard(value: '${user.questionsAsked}', label: AppTranslations.tr('stat_questions', lang)),
+                      _StatCard(value: '${user.questionsAsked}', label: ref.tr('stat_questions')),
                       const SizedBox(width: 12),
-                      _StatCard(value: '${user.documentsScanned}', label: AppTranslations.tr('stat_documents', lang)),
+                      _StatCard(value: '${user.documentsScanned}', label: ref.tr('stat_documents')),
                       const SizedBox(width: 12),
-                      _StatCard(value: '${user.lawyersContacted}', label: AppTranslations.tr('stat_lawyers', lang)),
+                      _StatCard(value: '${user.lawyersContacted}', label: ref.tr('stat_lawyers')),
                     ],
                   ),
                 ],
@@ -108,29 +107,29 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   // Menu
                   _MenuSection(
-                    title: AppTranslations.tr('menu_account', lang),
+                    title: ref.tr('menu_account'),
                     items: [
-                      _MenuItem(icon: Icons.person_outline, label: AppTranslations.tr('menu_edit_profile', lang), onTap: () => context.push(AppRoutes.userProfile)),
-                      _MenuItem(icon: Icons.bookmark_outline, label: AppTranslations.tr('menu_saved_lawyers', lang), onTap: () => context.push(AppRoutes.savedLawyers)),
-                      _MenuItem(icon: Icons.calendar_today_outlined, label: AppTranslations.tr('menu_my_bookings', lang), onTap: () => context.push(AppRoutes.myBookings)),
-                      _MenuItem(icon: Icons.folder_outlined, label: AppTranslations.tr('menu_my_documents', lang), onTap: () => context.push(AppRoutes.documentLibrary)),
+                      _MenuItem(icon: Icons.person_outline, label: ref.tr('menu_edit_profile'), onTap: () => context.push(AppRoutes.userProfile)),
+                      _MenuItem(icon: Icons.bookmark_outline, label: ref.tr('menu_saved_lawyers'), onTap: () => context.push(AppRoutes.savedLawyers)),
+                      _MenuItem(icon: Icons.calendar_today_outlined, label: ref.tr('menu_my_bookings'), onTap: () => context.push(AppRoutes.myBookings)),
+                      _MenuItem(icon: Icons.folder_outlined, label: ref.tr('menu_my_documents'), onTap: () => context.push(AppRoutes.documentLibrary)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _MenuSection(
-                    title: AppTranslations.tr('menu_subscription', lang),
+                    title: ref.tr('menu_subscription'),
                     items: [
-                      _MenuItem(icon: Icons.diamond_outlined, label: AppTranslations.tr('menu_plans', lang), onTap: () => context.push(AppRoutes.subscriptionPlans), hasGold: true),
-                      _MenuItem(icon: Icons.credit_card_outlined, label: AppTranslations.tr('menu_payments', lang), onTap: () => context.push(AppRoutes.paymentMethods)),
+                      _MenuItem(icon: Icons.diamond_outlined, label: ref.tr('menu_plans'), onTap: () => context.push(AppRoutes.subscriptionPlans), hasGold: true),
+                      _MenuItem(icon: Icons.credit_card_outlined, label: ref.tr('menu_payments'), onTap: () => context.push(AppRoutes.paymentMethods)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _MenuSection(
-                    title: AppTranslations.tr('settings', lang),
+                    title: ref.tr('settings'),
                     items: [
-                      _MenuItem(icon: Icons.settings_outlined, label: AppTranslations.tr('settings', lang), onTap: () => context.push(AppRoutes.settings)),
-                      _MenuItem(icon: Icons.help_outline, label: AppTranslations.tr('menu_help', lang), onTap: () => context.push(AppRoutes.helpSupport)),
-                      _MenuItem(icon: Icons.phone_in_talk_outlined, label: AppTranslations.tr('menu_emergency', lang), onTap: () => context.push(AppRoutes.emergencyContacts)),
+                      _MenuItem(icon: Icons.settings_outlined, label: ref.tr('settings'), onTap: () => context.push(AppRoutes.settings)),
+                      _MenuItem(icon: Icons.help_outline, label: ref.tr('menu_help'), onTap: () => context.push(AppRoutes.helpSupport)),
+                      _MenuItem(icon: Icons.phone_in_talk_outlined, label: ref.tr('menu_emergency'), onTap: () => context.push(AppRoutes.emergencyContacts)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -153,7 +152,7 @@ class ProfileScreen extends ConsumerWidget {
                         children: [
                           const Icon(Icons.logout_outlined, color: AppColors.error, size: 18),
                           const SizedBox(width: 8),
-                          Text(AppTranslations.tr('logout', lang), style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
+                          Text(ref.tr('logout'), style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
                         ],
                       ),
                     ),
@@ -248,3 +247,4 @@ class _MenuItem extends StatelessWidget {
     );
   }
 }
+

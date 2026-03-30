@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:legalhelp_kz/config/theme.dart';
 
 // ─── Gold Button ──────────────────────────────────────────────────────────────
@@ -24,7 +26,10 @@ class GoldButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isLoading ? null : onTap,
+      onTap: isLoading ? null : () {
+        HapticFeedback.lightImpact();
+        onTap?.call();
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         width: width ?? double.infinity,
@@ -276,7 +281,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading ??
           (showBack
               ? GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/home');
+                    }
+                  },
                   child: Container(
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -521,3 +532,4 @@ class _GoldPulseState extends State<GoldPulse>
     );
   }
 }
+

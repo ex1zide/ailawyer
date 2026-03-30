@@ -118,3 +118,4 @@ class _InfoItem extends StatelessWidget {
     ]),
   );
 }
+

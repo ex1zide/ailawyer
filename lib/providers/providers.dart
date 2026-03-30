@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/core/utils/mock_data.dart';
 import 'package:legalhelp_kz/features/auth/repositories/auth_repository.dart';
 import 'package:legalhelp_kz/features/chat/repositories/chat_repository.dart';
-import 'package:legalhelp_kz/features/lawyers/repositories/lawyer_repository.dart';
 import 'package:legalhelp_kz/core/services/firestore_service.dart';
 import 'package:legalhelp_kz/core/services/storage_service.dart';
 import 'package:legalhelp_kz/core/services/openai_service.dart';
@@ -200,8 +198,43 @@ final userProfileProvider = StreamProvider<User?>((ref) {
 
 class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   final ChatRepository _repository;
+  DateTime? _lastSentAt;
+  int _dailyCount = 0;
+  DateTime _dailyResetDate = DateTime.now();
 
   ChatNotifier(this._repository) : super([]);
+
+  /// Cooldown in seconds between messages.
+  static const int _cooldownSeconds = 2;
+
+  /// Max free-plan messages per day. Pro = unlimited.
+  static const int _freeDailyLimit = 5;
+
+  /// Checks if a new message can be sent (rate + daily limits).
+  /// Returns null if OK, or an error string explaining why not.
+  String? canSend({bool isPro = false}) {
+    // Reset daily count if new day
+    final now = DateTime.now();
+    if (now.day != _dailyResetDate.day || now.month != _dailyResetDate.month) {
+      _dailyCount = 0;
+      _dailyResetDate = now;
+    }
+
+    // Cooldown check
+    if (_lastSentAt != null) {
+      final diff = now.difference(_lastSentAt!).inSeconds;
+      if (diff < _cooldownSeconds) {
+        return 'Подождите ${_cooldownSeconds - diff} сек.';
+      }
+    }
+
+    // Daily limit (Free plan only)
+    if (!isPro && _dailyCount >= _freeDailyLimit) {
+      return 'Лимит ${ _freeDailyLimit} запросов в день. Перейдите на Pro для безлимитного доступа.';
+    }
+
+    return null;
+  }
 
   Future<void> loadHistory() async {
     try {
@@ -216,7 +249,22 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
     state = [...state, message];
   }
 
-  Future<void> sendMessage(String text) async {
+  Future<void> sendMessage(String text, {bool isPro = false}) async {
+    // Rate limit check
+    final limitMsg = canSend(isPro: isPro);
+    if (limitMsg != null) {
+      addMessage(ChatMessage(
+        id: 'limit_${DateTime.now().millisecondsSinceEpoch}',
+        text: limitMsg,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ));
+      return;
+    }
+
+    _lastSentAt = DateTime.now();
+    _dailyCount++;
+
     final userMsg = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       text: text,
@@ -495,3 +543,4 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
 final languageProvider = StateNotifierProvider<LanguageNotifier, String>((ref) {
   return LanguageNotifier(ref.watch(sharedPreferencesProvider));
 });
+

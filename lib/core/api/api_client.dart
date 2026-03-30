@@ -77,3 +77,4 @@ class ApiClient {
     return ApiException(message, statusCode: statusCode, errorData: e.response?.data);
   }
 }
+

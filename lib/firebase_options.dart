@@ -46,3 +46,4 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.legalhelpKz',
   );
 }
+

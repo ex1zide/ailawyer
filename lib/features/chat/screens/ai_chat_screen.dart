@@ -333,3 +333,4 @@ class _LoadingDotState extends State<_LoadingDot> with SingleTickerProviderState
     ),
   );
 }
+

@@ -20,9 +20,9 @@ class _LegalNewsScreenState extends ConsumerState<LegalNewsScreen> {
   @override
   Widget build(BuildContext context) {
     final lang = ref.watch(languageProvider);
-    final allStr = AppTranslations.tr('all_categories', lang);
-    final newsStr = AppTranslations.tr('news_category', lang);
-    final lawStr = AppTranslations.tr('news_law', lang);
+    final allStr = ref.tr('all_categories');
+    final newsStr = ref.tr('news_category');
+    final lawStr = ref.tr('news_law');
 
     final _cats = [allStr, newsStr, lawStr, 'Бизнес', 'ДТП', 'Трудовое', 'Семейное', 'Недвижимость'];
 
@@ -36,7 +36,7 @@ class _LegalNewsScreenState extends ConsumerState<LegalNewsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      appBar: CustomAppBar(title: AppTranslations.tr('legal_news', lang), showBack: true),
+      appBar: CustomAppBar(title: ref.tr('legal_news'), showBack: true),
       body: Column(
         children: [
           SizedBox(
@@ -120,7 +120,7 @@ class _LegalNewsScreenState extends ConsumerState<LegalNewsScreen> {
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                Text(AppTranslations.tr('read_more', lang), style: const TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
+                                Text(ref.tr('read_more'), style: const TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w500, fontFamily: 'Inter')),
                                 const SizedBox(width: 4),
                                 const Icon(Icons.arrow_forward, color: AppColors.gold, size: 13),
                               ],
@@ -139,3 +139,4 @@ class _LegalNewsScreenState extends ConsumerState<LegalNewsScreen> {
     );
   }
 }
+

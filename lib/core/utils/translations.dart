@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legalhelp_kz/providers/providers.dart';
+
 class AppTranslations {
   static const Map<String, Map<String, String>> strings = {
     // ─── Onboarding ────────────────────────────────────────────────────────────
@@ -225,6 +228,68 @@ class AppTranslations {
       'Русский': 'Законодательство',
       'Қазақша': 'Заңнама',
     },
+
+    // ─── Common UI ──────────────────────────────────────────────────────
+    'retry': {
+      'Русский': 'Повторить',
+      'Қазақша': 'Қайталау',
+    },
+    'error_generic': {
+      'Русский': 'Что-то пошло не так',
+      'Қазақша': 'Бірдеңе дұрыс болмады',
+    },
+    'no_connection': {
+      'Русский': 'Нет подключения к сети',
+      'Қазақша': 'Желіге қосылым жоқ',
+    },
+    'loading': {
+      'Русский': 'Загрузка...',
+      'Қазақша': 'Жүктелуде...',
+    },
+    'cancel': {
+      'Русский': 'Отмена',
+      'Қазақша': 'Болдырмау',
+    },
+    'save': {
+      'Русский': 'Сохранить',
+      'Қазақша': 'Сақтау',
+    },
+    'delete': {
+      'Русский': 'Удалить',
+      'Қазақша': 'Жою',
+    },
+    'confirm': {
+      'Русский': 'Подтвердить',
+      'Қазақша': 'Растау',
+    },
+    'search_hint': {
+      'Русский': 'Поиск...',
+      'Қазақша': 'Іздеу...',
+    },
+    'no_data': {
+      'Русский': 'Нет данных',
+      'Қазақша': 'Деректер жоқ',
+    },
+    'chat_limit_reached': {
+      'Русский': 'Лимит запросов исчерпан',
+      'Қазақша': 'Сұраныстар лимиті таусылды',
+    },
+    'upgrade_pro': {
+      'Русский': 'Перейти на Pro',
+      'Қазақша': 'Pro-ға көшу',
+    },
+    'phone_hint': {
+      'Русский': 'Номер телефона',
+      'Қазақша': 'Телефон нөмірі',
+    },
+    'send_code': {
+      'Русский': 'Отправить код',
+      'Қазақша': 'Код жіберу',
+    },
+    'verify_code': {
+      'Русский': 'Проверить код',
+      'Қазақша': 'Кодты тексеру',
+    },
   };
 
   /// Main translation getter function
@@ -234,3 +299,11 @@ class AppTranslations {
     return map[lang] ?? map['Русский'] ?? key; // fallback to Russian
   }
 }
+
+extension TranslationExtension on WidgetRef {
+  String tr(String key) {
+    final lang = watch(languageProvider);
+    return AppTranslations.tr(key, lang);
+  }
+}
+

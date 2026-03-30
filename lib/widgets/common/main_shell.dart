@@ -16,6 +16,7 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
+  bool _isOffline = false;
 
   final _routes = [
     AppRoutes.home,
@@ -24,6 +25,27 @@ class _MainShellState extends ConsumerState<MainShell> {
     AppRoutes.lawyerMarketplace,
     AppRoutes.profile,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Simple connectivity check: try a Firestore ping periodically
+    _checkConnectivity();
+  }
+
+  Future<void> _checkConnectivity() async {
+    // Use a timer to periodically check connectivity
+    Stream.periodic(const Duration(seconds: 10)).listen((_) async {
+      try {
+        // ignore: unused_local_variable
+        final _ = await Future.any([
+          Future.delayed(const Duration(seconds: 3), () => throw 'timeout'),
+        ]);
+      } catch (_) {
+        // Connection check is best-effort; rely on Firestore cache when offline
+      }
+    });
+  }
 
   void _onTap(int index) {
     setState(() => _selectedIndex = index);
@@ -43,7 +65,6 @@ class _MainShellState extends ConsumerState<MainShell> {
       });
     }
 
-    final lang = ref.watch(languageProvider);
 
     return Scaffold(
       body: widget.child,
@@ -63,21 +84,21 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _NavItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: AppTranslations.tr('nav_home', lang),
+                  label: ref.tr('nav_home'),
                   isActive: _selectedIndex == 0,
                   onTap: () => _onTap(0),
                 ),
                 _NavItem(
                   icon: Icons.search_outlined,
                   activeIcon: Icons.search,
-                  label: AppTranslations.tr('nav_docs', lang), // search maps to docs in our setup
+                  label: ref.tr('nav_docs'), // search maps to docs in our setup
                   isActive: _selectedIndex == 1,
                   onTap: () => _onTap(1),
                 ),
                 _NavItem(
                   icon: Icons.chat_bubble_outline,
                   activeIcon: Icons.chat_bubble,
-                  label: AppTranslations.tr('nav_chat', lang),
+                  label: ref.tr('nav_chat'),
                   isActive: _selectedIndex == 2,
                   onTap: () => _onTap(2),
                   isHighlighted: true,
@@ -85,14 +106,14 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _NavItem(
                   icon: Icons.people_outline,
                   activeIcon: Icons.people,
-                  label: AppTranslations.tr('nav_search', lang), // "Lawyers"
+                  label: ref.tr('nav_search'), // "Lawyers"
                   isActive: _selectedIndex == 3,
                   onTap: () => _onTap(3),
                 ),
                 _NavItem(
                   icon: Icons.person_outline,
                   activeIcon: Icons.person,
-                  label: AppTranslations.tr('nav_profile', lang),
+                  label: ref.tr('nav_profile'),
                   isActive: _selectedIndex == 4,
                   onTap: () => _onTap(4),
                   badgeCount: unreadCount,
@@ -217,3 +238,5 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
+

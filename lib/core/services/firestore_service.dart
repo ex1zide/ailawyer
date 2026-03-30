@@ -87,13 +87,10 @@ class FirestoreService {
   ) =>
       ref.snapshots();
 
-  /// Returns a real-time collection stream with optional query.
+  /// Returns a real-time collection stream.
   Stream<QuerySnapshot<Map<String, dynamic>>> collectionStream(
-    CollectionReference<Map<String, dynamic>> ref, {
-    List<Query<Map<String, dynamic>> Function(
-            CollectionReference<Map<String, dynamic>>)>
-        queries = const [],
-  }) {
+    CollectionReference<Map<String, dynamic>> ref,
+  ) {
     return ref.snapshots();
   }
 
@@ -108,3 +105,4 @@ class FirestoreService {
   /// Server timestamp helper.
   static FieldValue get serverTimestamp => FieldValue.serverTimestamp();
 }
+

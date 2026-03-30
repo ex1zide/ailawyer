@@ -63,7 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      appBar: CustomAppBar(title: AppTranslations.tr('login', lang)),
+      appBar: CustomAppBar(title: ref.tr('login')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -93,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 Text(
-                  AppTranslations.tr('email_hint', lang),
+                  ref.tr('email_hint'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -108,13 +108,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Введите email';
-                    if (!v.contains('@')) return 'Неверный формат email';
+                    final emailRegex = RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$');
+                    if (!emailRegex.hasMatch(v)) return 'Неверный формат email';
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  AppTranslations.tr('password_hint', lang),
+                  ref.tr('password_hint'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -134,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 GoldButton(
-                  text: AppTranslations.tr('sign_in', lang),
+                  text: ref.tr('sign_in'),
                   isLoading: _isLoading,
                   onTap: _login,
                 ),
@@ -143,13 +144,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${AppTranslations.tr('no_account', lang)} ',
+                      '${ref.tr('no_account')} ',
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
                     GestureDetector(
                       onTap: () => context.push('/register'),
                       child: Text(
-                        AppTranslations.tr('register_now', lang),
+                        ref.tr('register_now'),
                         style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w600,
@@ -166,3 +167,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
+

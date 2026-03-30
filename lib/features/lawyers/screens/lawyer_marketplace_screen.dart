@@ -6,6 +6,8 @@ import 'package:legalhelp_kz/config/theme.dart';
 import 'package:legalhelp_kz/core/models/models.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
+import 'package:legalhelp_kz/widgets/common/shimmer_loading.dart';
+import 'package:legalhelp_kz/widgets/common/error_widget.dart';
 
 class LawyerMarketplaceScreen extends ConsumerWidget {
   const LawyerMarketplaceScreen({super.key});
@@ -112,13 +114,21 @@ class LawyerMarketplaceScreen extends ConsumerWidget {
               child: ref.watch(lawyersProvider).when(
                 data: (lawyers) => lawyers.isEmpty
                     ? const EmptyState(icon: '🔍', title: 'Юристы не найдены', subtitle: 'Попробуйте другую категорию')
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: lawyers.length,
-                        itemBuilder: (_, i) => _LawyerCard(lawyer: lawyers[i]),
+                    : RefreshIndicator(
+                        color: AppColors.gold,
+                        backgroundColor: AppColors.secondaryBackground,
+                        onRefresh: () async => ref.invalidate(lawyersProvider),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: lawyers.length,
+                          itemBuilder: (_, i) => _LawyerCard(lawyer: lawyers[i]),
+                        ),
                       ),
-                loading: () => const Center(child: CircularProgressIndicator(color: AppColors.gold)),
-                error: (err, _) => EmptyState(icon: '⚠️', title: 'Ошибка', subtitle: err.toString()),
+                loading: () => const LawyerListSkeleton(),
+                error: (err, _) => AppErrorWidget(
+                  message: err.toString(),
+                  onRetry: () => ref.invalidate(lawyersProvider),
+                ),
               ),
             ),
           ],
@@ -262,3 +272,4 @@ class _LawyerCard extends ConsumerWidget {
     );
   }
 }
+

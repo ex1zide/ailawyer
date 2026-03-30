@@ -63,7 +63,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      appBar: CustomAppBar(title: AppTranslations.tr('register_now', lang)),
+      appBar: CustomAppBar(title: ref.tr('register_now')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -93,7 +93,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 40),
                 Text(
-                  AppTranslations.tr('email_hint', lang),
+                  ref.tr('email_hint'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -108,13 +108,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Введите email';
-                    if (!v.contains('@')) return 'Неверный формат email';
+                    final emailRegex = RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$');
+                    if (!emailRegex.hasMatch(v)) return 'Неверный формат email';
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  AppTranslations.tr('password_hint', lang),
+                  ref.tr('password_hint'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -135,7 +136,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 40),
                 GoldButton(
-                  text: AppTranslations.tr('register_now', lang),
+                  text: ref.tr('register_now'),
                   isLoading: _isLoading,
                   onTap: _register,
                 ),
@@ -150,7 +151,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     GestureDetector(
                       onTap: () => context.push('/login'),
                       child: Text(
-                        AppTranslations.tr('sign_in', lang),
+                        ref.tr('sign_in'),
                         style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w600,
@@ -167,3 +168,4 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 }
+

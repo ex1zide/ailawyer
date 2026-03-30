@@ -354,3 +354,4 @@ extension ConsultationTypeHelper on ConsultationType {
     }
   }
 }
+

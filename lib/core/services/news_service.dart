@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:dart_rss/dart_rss.dart';
 import 'package:html/parser.dart';
@@ -58,7 +59,7 @@ class NewsService {
       }
     } catch (e) {
       // Return mock data fallback on failure
-      print('RSS Fetch Error: $e');
+      debugPrint('RSS Fetch Error: $e');
     }
     return MockData.news;
   }
@@ -85,3 +86,4 @@ class NewsService {
     }
   }
 }
+

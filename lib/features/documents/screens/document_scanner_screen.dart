@@ -118,7 +118,13 @@ class _DocumentScannerScreenState extends ConsumerState<DocumentScannerScreen>
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/home');
+                        }
+                      },
                       child: Container(
                         width: 40, height: 40,
                         decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
@@ -234,14 +240,25 @@ class _ResultView extends ConsumerWidget {
                   type: 'Contracts',
                 );
               }
-              context.pop();
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
             }
           ),
           const SizedBox(height: 10),
-          GoldButton(text: 'Сканировать ещё', isOutlined: true, onTap: () => Navigator.pop(context)),
+          GoldButton(text: 'Сканировать ещё', isOutlined: true, onTap: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          }),
         ],
       ),
     );
   }
 }
+
 

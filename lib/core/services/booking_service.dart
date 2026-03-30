@@ -40,13 +40,19 @@ class BookingService {
   Stream<List<Booking>> getUserBookings(String userId) {
     return _fs.bookingsCol
         .where('userId', isEqualTo: userId)
-        // .orderBy('dateTime', descending: true) // Disabled to avoid composite index requirement
         .snapshots()
         .asyncMap((snap) async {
       final bookings = <Booking>[];
+      // Cache lawyers to avoid N+1 queries
+      final lawyerCache = <String, Lawyer>{};
       for (final doc in snap.docs) {
         final data = doc.data();
-        final lawyer = await _lawyerService.getLawyerById(data['lawyerId']);
+        final lawyerId = data['lawyerId'] as String;
+        if (!lawyerCache.containsKey(lawyerId)) {
+          final lawyer = await _lawyerService.getLawyerById(lawyerId);
+          if (lawyer != null) lawyerCache[lawyerId] = lawyer;
+        }
+        final lawyer = lawyerCache[lawyerId];
         if (lawyer != null) {
           bookings.add(_bookingFromDoc(data, lawyer));
         }
@@ -114,3 +120,4 @@ class BookingService {
     }
   }
 }
+

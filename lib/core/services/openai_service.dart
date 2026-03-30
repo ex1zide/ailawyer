@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:legalhelp_kz/core/utils/list_extensions.dart';
 
 /// AI service powered by Google Gemini for Kazakhstan legal consultations.
 class OpenAIService {
@@ -9,7 +10,9 @@ class OpenAIService {
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 
   // Gemini API key
-  String _apiKey = ''; // TODO: Inject via environment variables or secure storage
+  // API key — inject via `--dart-define=GEMINI_API_KEY=xxx` in production.
+  // In debug, set via setApiKey() from a .env or secure storage.
+  String _apiKey = const String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
 
   void setApiKey(String key) => _apiKey = key;
   bool get hasApiKey => _apiKey.isNotEmpty;
@@ -99,6 +102,5 @@ class OpenAIService {
   }
 }
 
-extension _ListExt<T> on List<T> {
-  List<T> takeLast(int n) => length > n ? sublist(length - n) : this;
-}
+
+

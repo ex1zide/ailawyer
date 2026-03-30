@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:legalhelp_kz/firebase_options.dart';
 import 'package:legalhelp_kz/core/utils/firestore_seeder.dart';
 import 'package:legalhelp_kz/providers/providers.dart';
@@ -13,7 +14,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
+  // Enable Firestore offline persistence (50MB cache)
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: 50 * 1024 * 1024, // 50MB
+  );  
   final prefs = await SharedPreferences.getInstance();
 
 
@@ -45,3 +51,4 @@ void main() async {
     ),
   );
 }
+

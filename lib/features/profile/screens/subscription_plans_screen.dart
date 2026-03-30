@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:legalhelp_kz/config/routes.dart';
 import 'package:legalhelp_kz/config/theme.dart';
-import 'package:legalhelp_kz/providers/providers.dart';
 import 'package:legalhelp_kz/widgets/common/widgets.dart';
 
 class SubscriptionPlansScreen extends ConsumerStatefulWidget {
@@ -160,3 +159,4 @@ class _BillingTab extends StatelessWidget {
     ),
   );
 }
+
